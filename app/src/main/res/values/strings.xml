@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">MDP_Android</string>
+    <string name="bt_page_main">Main</string>
+    <string name="bt_page_bluetooth">Bluetooth</string>
+    <string name="bt_page_switch_off">Off</string>
+    <string name="bt_page_switch_on">On</string>
+    <string name="bt_page_back_button_desc">Back to home page</string>
+    <string name="bt_page_paired_devices">PAIRED DEVICES</string>
+    <string name="bt_page_other_devices">OTHER DEVICES</string>
+    <string name="bt_page_connect_button">CONNECT</string>
+    <string name="bt_connected">Connected</string>
+    <string name="bt_not_connected">Not Connected</string>
 </resources>

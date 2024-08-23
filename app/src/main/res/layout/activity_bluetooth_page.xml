@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9F7F7"
+    tools:context=".BluetoothPage">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- 1. Header section -->
+            <LinearLayout
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <!-- Back button and its text on LHS -->
+                <LinearLayout
+                    android:id="@+id/left_side"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/back_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:backgroundTint="#00FFFFFF"
+                        android:contentDescription="@string/bt_page_back_button_desc"
+                        android:foregroundTint="#00FFFFFF"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        app:srcCompat="@drawable/back_arrow"
+                        app:tint="@color/theme_blue" />
+
+                    <TextView
+                        android:id="@+id/back_button_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/theme_blue"
+                        android:textSize="20sp"
+                        android:text="@string/bt_page_main" />
+                </LinearLayout>
+
+                <!-- Connection status in the middle -->
+                <TextView
+                    android:id="@+id/bt_page_connection_status"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="8"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:textColor="@color/theme_blue"
+                    android:textSize="20sp"
+                    android:text="@string/bt_not_connected" />
+
+                <!-- Filler space for symmetry on RHS -->
+                <View
+                    android:id="@+id/right_side"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2" />
+
+            </LinearLayout>
+
+            <!-- 2. Bluetooth toggle section -->
+            <RelativeLayout
+                android:id="@+id/bt_toggle_section"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_below="@id/header"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginEnd="25dp"
+                android:background="@drawable/rounded_segment_background">
+
+                <TextView
+                    android:id="@+id/bt_switch_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_toStartOf="@id/bt_switch"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:textColor="@color/theme_blue"
+                    android:textSize="20sp"
+                    android:text="@string/bt_page_bluetooth" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/bt_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:checked="false"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:textOff="@string/bt_page_switch_off"
+                    android:textOn="@string/bt_page_switch_on" />
+            </RelativeLayout>
+
+            <!-- 3. Other devices section -->
+            <LinearLayout
+                android:id="@+id/other_devices_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/bt_toggle_section"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginEnd="25dp"
+                android:orientation="vertical">
+
+                <!-- Title -->
+                <TextView
+                    android:id="@+id/other_devices_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:paddingBottom="5dp"
+                    android:text="@string/bt_page_other_devices"
+                    android:textColor="@color/theme_blue"
+                    android:textSize="20sp" />
+
+                <!-- Scrollable ListView -->
+                <ListView
+                    android:id="@+id/other_devices_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:background="@drawable/rounded_segment_background"
+                    android:divider="@color/light_gray"
+                    android:dividerHeight="2dp"
+                    android:padding="8dp"
+                    android:scrollbars="vertical"
+                    android:textColor="@color/theme_dark_blue"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- 4. Paired devices section -->
+            <LinearLayout
+                android:id="@+id/paired_devices_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/other_devices_section"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginEnd="25dp"
+                android:orientation="vertical">
+
+                <!-- Title -->
+                <TextView
+                    android:id="@+id/paired_devices_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:paddingBottom="5dp"
+                    android:text="@string/bt_page_paired_devices"
+                    android:textColor="@color/theme_blue"
+                    android:textSize="20sp" />
+
+                <!-- Scrollable ListView -->
+                <ListView
+                    android:id="@+id/paired_devices_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:background="@drawable/rounded_segment_background"
+                    android:divider="@color/light_gray"
+                    android:dividerHeight="2dp"
+                    android:padding="8dp"
+                    android:scrollbars="vertical"
+                    android:textColor="@color/theme_dark_blue"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- 5. Connect button -->
+            <Button
+                android:id="@+id/bt_connect_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/paired_devices_section"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginTop="25dp"
+                android:layout_alignParentEnd="true"
+                android:text="@string/bt_page_connect_button"
+                android:textColor="@color/white"
+                android:background="@drawable/connect_button_selector"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
