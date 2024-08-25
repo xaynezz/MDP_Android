@@ -51,7 +51,7 @@ import java.util.UUID;
 public class BluetoothConnectionManager {
 
     // Debugging tag for logging
-    private static final String TAG = "DebuggingTag";
+    private static final String TAG = "BluetoothConnectionManager";
 
     // Name of the application for identifying the Bluetooth service
     private static final String appName = "MDP_Group_21";
