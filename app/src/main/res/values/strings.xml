@@ -5,6 +5,7 @@
     <string name="bt_page_switch_off">Off</string>
     <string name="bt_page_switch_on">On</string>
     <string name="bt_page_back_button_desc">Back to home page</string>
+    <string name="bt_page_search_button_desc">Search for devices</string>
     <string name="bt_page_paired_devices">PAIRED DEVICES</string>
     <string name="bt_page_other_devices">OTHER DEVICES</string>
     <string name="bt_page_connect_button">CONNECT</string>

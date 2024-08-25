@@ -30,7 +30,9 @@
                     android:layout_height="match_parent"
                     android:layout_weight="2"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <ImageButton
                         android:id="@+id/back_button"
@@ -99,7 +101,7 @@
                     android:textSize="20sp"
                     android:text="@string/bt_page_bluetooth" />
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
+                <Switch
                     android:id="@+id/bt_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -111,12 +113,28 @@
                     android:textOn="@string/bt_page_switch_on" />
             </RelativeLayout>
 
-            <!-- 3. Other devices section -->
+            <!-- 3. Bluetooth search section -->
+            <ImageButton
+                android:id="@+id/search_button"
+                android:layout_width="47dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/bt_toggle_section"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="25dp"
+                android:backgroundTint="#00FFFFFF"
+                android:contentDescription="@string/bt_page_search_button_desc"
+                android:foregroundTint="#00FFFFFF"
+                android:onClick="toggleButtonScan"
+                android:padding="10dp"
+                app:srcCompat="@drawable/bt_search"
+                app:tint="@color/theme_blue" />
+
+            <!-- 4. Other devices section -->
             <LinearLayout
                 android:id="@+id/other_devices_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/bt_toggle_section"
+                android:layout_below="@id/search_button"
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="25dp"
                 android:layout_marginEnd="25dp"
@@ -149,7 +167,7 @@
 
             </LinearLayout>
 
-            <!-- 4. Paired devices section -->
+            <!-- 5. Paired devices section -->
             <LinearLayout
                 android:id="@+id/paired_devices_section"
                 android:layout_width="match_parent"
@@ -187,7 +205,7 @@
 
             </LinearLayout>
 
-            <!-- 5. Connect button -->
+            <!-- 6. Connect button -->
             <Button
                 android:id="@+id/bt_connect_button"
                 android:layout_width="wrap_content"
