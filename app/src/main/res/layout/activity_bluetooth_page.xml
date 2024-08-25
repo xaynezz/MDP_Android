@@ -64,7 +64,7 @@
                     android:textAlignment="center"
                     android:textColor="@color/theme_blue"
                     android:textSize="20sp"
-                    android:text="@string/bt_not_connected" />
+                    android:text="@string/bt_disconnected" />
 
                 <!-- Filler space for symmetry on RHS -->
                 <View

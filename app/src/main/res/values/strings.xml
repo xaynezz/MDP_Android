@@ -9,7 +9,7 @@
     <string name="bt_page_other_devices">OTHER DEVICES</string>
     <string name="bt_page_connect_button">CONNECT</string>
     <string name="bt_connected">Connected</string>
-    <string name="bt_not_connected">Not Connected</string>
+    <string name="bt_disconnected">Disconnected</string>
     <string name="chat_send_arrow_desc">Sendmessage</string>
     <string name="chat_enter_message_hint">Enter message</string>
 </resources>
