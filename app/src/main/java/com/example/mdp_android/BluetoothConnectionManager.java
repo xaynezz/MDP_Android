@@ -19,6 +19,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
+//import com.example.mdp_android.MainActivity; // TODO: Uncomment later
+//import com.example.mdp_android.R; // TODO: Uncomment later
 
 
 
@@ -91,7 +93,7 @@ public class BluetoothConnectionManager {
 
     /**
      * Constructor for the BluetoothConnectionManager class.
-     * Initializes the Bluetooth adapter and starts the AcceptThread to listen for incoming connections.
+     * Initializes the Bluetooth adapter and starts the AcceptConnectionThread to listen for incoming connections.
      *
      * @param context The current state of the application (used to access resources and services)
      */
@@ -103,7 +105,7 @@ public class BluetoothConnectionManager {
 
     /**
      * AcceptConnectionThread (server-side) is responsible for listening for incoming Bluetooth connection requests.
-     * When a connection is accepted, it creates a Bluetooth socket and passes it to the ConnectedThread for communication.
+     * When a connection is accepted, it creates a Bluetooth socket and passes it to the BluetoothCommunicationThread for communication.
      */
     private class AcceptConnectionThread extends Thread {
         // Server socket used to listen for incoming connections
@@ -134,7 +136,7 @@ public class BluetoothConnectionManager {
                 e.printStackTrace();
             }
 
-            // If a connection was accepted, pass the socket to the ConnectedThread
+            // If a connection was accepted, pass the socket to the BluetoothCommunicationThread
             if (bluetoothSocket != null) {
                 establishCommunication(bluetoothSocket, bluetoothSocket.getRemoteDevice());
             }
@@ -192,7 +194,7 @@ public class BluetoothConnectionManager {
             try {
                 // Attempt to connect to the remote device (blocking call)
                 bluetoothSocket.connect();
-                // If connection is successful, pass the socket to the ConnectedThread
+                // If connection is successful, pass the socket to the BluetoothCommunicationThread
                 establishCommunication(bluetoothSocket, connectedDevice);
             } catch (IOException e) {
                 try {
@@ -251,7 +253,7 @@ public class BluetoothConnectionManager {
          */
         @SuppressLint("MissingPermission")
         public BluetoothCommunicationThread(BluetoothSocket socket) {
-            Log.d(TAG, "ConnectedThread: Starting.");
+            Log.d(TAG, "BluetoothCommunicationThread: Starting.");
 
             // Broadcast the connection status as "connected"
             connectionStatus = new Intent("ConnectionStatus");
@@ -287,7 +289,7 @@ public class BluetoothConnectionManager {
         }
 
         /**
-         * The main method of the ConnectedThread. Continuously reads data from the input stream of the Bluetooth socket.
+         * The main method of the BluetoothCommunicationThread. Continuously reads data from the input stream of the Bluetooth socket.
          * If a complete message is received, it broadcasts the message using an Intent.
          */
         public void run() {
@@ -308,6 +310,8 @@ public class BluetoothConnectionManager {
                     int delimiterIndex = messageBuffer.indexOf("\n");
                     if (delimiterIndex != -1) {
                         // Split the buffer contents into individual messages
+                        // "incomingMessage" is the action of the broadcast
+                        // "receivedMessage" is the key for the actual message data
                         String[] messages = messageBuffer.toString().split("\n");
                         for (String message : messages) {
                             // Broadcast each incoming message using an Intent
@@ -370,8 +374,8 @@ public class BluetoothConnectionManager {
     }
 
     /**
-     * Starts the AcceptThread to listen for incoming Bluetooth connection requests.
-     * If a ConnectThread is already running, it is stopped to avoid conflicts.
+     * Starts the AcceptConnectionThread to listen for incoming Bluetooth connection requests.
+     * If a OutgoingConnectionThread is already running, it is stopped to avoid conflicts.
      */
     public synchronized void startAcceptConnectionThread() {
         // Cancel any ongoing outgoing connection attempts
@@ -401,7 +405,7 @@ public class BluetoothConnectionManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // Start the ConnectThread to initiate the connection
+        // Start the OutgoingConnectionThread to initiate the connection
         this.outgoingConnectionThread = new OutgoingConnectionThread(device, uuid);
         this.outgoingConnectionThread.start();
     }
@@ -416,19 +420,19 @@ public class BluetoothConnectionManager {
     private void establishCommunication(BluetoothSocket bluetoothSocket, BluetoothDevice device) {
         connectedDevice = device;
 
-        // Stop the AcceptThread since a connection has been established
+        // Stop the AcceptConnectionThread since a connection has been established
         if (acceptConnectionThread != null) {
             acceptConnectionThread.cancel();
             acceptConnectionThread = null;
         }
 
-        // Start the ConnectedThread to manage the connection
+        // Start the BluetoothCommunicationThread to manage the connection
         bluetoothCommunicationThread = new BluetoothCommunicationThread(bluetoothSocket);
         bluetoothCommunicationThread.start();
     }
 
     /**
-     * Sends data to the connected Bluetooth device by writing it to the ConnectedThread's output stream.
+     * Sends data to the connected Bluetooth device by writing it to the BluetoothCommunicationThread's output stream.
      *
      * @param out The data to be sent
      */
