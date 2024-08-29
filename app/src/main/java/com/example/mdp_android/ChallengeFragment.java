@@ -123,7 +123,7 @@ public class ChallengeFragment extends Fragment {
         ImageButton leftBtn = this.mainActivity.getLeftBtn();
         Button imgRecResetBtn = root.findViewById(R.id.task1_reset);
         Button fastestCarResetBtn = root.findViewById(R.id.task2_reset);
-        this.imgRecText = root.findViewById(R.id.bluetooth_status);
+        this.imgRecText = root.findViewById(R.id.task1_timing);
         this.fastestCarText = root.findViewById(R.id.task2_timing);
         this.imgRecBtn = root.findViewById(R.id.task1_start);
         this.fastestCarBtn = root.findViewById(R.id.task2_start);

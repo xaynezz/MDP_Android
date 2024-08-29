@@ -27,7 +27,6 @@
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/theme_dark_blue"
-                android:text="Button"
                 android:textColor="@color/white"
                 android:textOff="Set Start Point"
                 android:textOn="@string/cancel" />
