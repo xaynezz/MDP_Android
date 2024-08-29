@@ -294,7 +294,7 @@
                     android:orientation="horizontal">
 
                     <ImageButton
-                        android:id="@+id/right_button"
+                        android:id="@+id/left_button"
                         android:layout_width="50dp"
                         android:layout_height="wrap_content"
                         android:background="#00FFFFFF"
@@ -307,7 +307,7 @@
                         android:layout_height="wrap_content" />
 
                     <ImageButton
-                        android:id="@+id/left_button"
+                        android:id="@+id/right_button"
                         android:layout_width="50dp"
                         android:layout_height="wrap_content"
                         android:background="#00FFFFFF"
