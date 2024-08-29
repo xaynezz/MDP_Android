@@ -20,7 +20,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/bluetooth_text"
+                android:id="@+id/task1_text"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:background="@color/theme_dark_blue"
@@ -33,7 +33,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/bluetooth_status"
+                android:id="@+id/task1_timing"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:background="@color/theme_light_blue"
@@ -50,8 +50,8 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/theme_dark_blue"
                 android:textColor="@color/white"
-                android:textOff="Start"
-                android:textOn="@string/cancel" />
+                android:textOff="START"
+                android:textOn="STOP" />
 
             <Button
                 android:id="@+id/task1_reset"
@@ -103,8 +103,8 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/theme_dark_blue"
                 android:textColor="@color/white"
-                android:textOff="Start"
-                android:textOn="@string/cancel" />
+                android:textOff="START"
+                android:textOn="STOP" />
 
             <Button
                 android:id="@+id/task2_reset"
