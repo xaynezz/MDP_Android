@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">MDP_Android</string>
+    <string name="group_name">MDP Group 21</string>
     <string name="bt_page_main">Main</string>
     <string name="bt_page_bluetooth">Bluetooth</string>
     <string name="bt_page_switch_off">Off</string>
@@ -13,4 +14,15 @@
     <string name="bt_disconnected">Disconnected</string>
     <string name="chat_send_arrow_desc">Sendmessage</string>
     <string name="chat_enter_message_hint">Enter message</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="status_not_available">Not Available</string>
+    <string name="image_rec_end">Image Rec Completed</string>
+    <string name="fastest_car_end">Fastest Car Completed</string>
+    <string name="img_rec_stop">Image Recognition Completed</string>
+    <string name="img_rec_start">Image Recognition Started</string>
+    <string name="fastest_car_stop">Fastest Car Completed</string>
+    <string name="fastest_car_start">Fastest Car Started</string>
+    <string name="timer_default_val">00:00</string>
+    <string name="robot_status_na">Not Available</string>
 </resources>

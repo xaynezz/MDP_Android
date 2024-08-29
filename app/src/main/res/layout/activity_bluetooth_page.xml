@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9F7F7"
+    android:background="@color/theme_gray"
     tools:context=".BluetoothPage">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -29,10 +29,10 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <ImageButton
                         android:id="@+id/back_button"
@@ -51,9 +51,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
+                        android:text="@string/bt_page_main"
                         android:textColor="@color/theme_blue"
-                        android:textSize="20sp"
-                        android:text="@string/bt_page_main" />
+                        android:textSize="20sp" />
                 </LinearLayout>
 
                 <!-- Connection status in the middle -->
@@ -63,10 +63,10 @@
                     android:layout_height="match_parent"
                     android:layout_weight="8"
                     android:gravity="center"
+                    android:text="@string/bt_disconnected"
                     android:textAlignment="center"
                     android:textColor="@color/theme_blue"
-                    android:textSize="20sp"
-                    android:text="@string/bt_disconnected" />
+                    android:textSize="20sp" />
 
                 <!-- Filler space for symmetry on RHS -->
                 <View
@@ -97,9 +97,9 @@
                     android:gravity="center_vertical"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
+                    android:text="@string/bt_page_bluetooth"
                     android:textColor="@color/theme_blue"
-                    android:textSize="20sp"
-                    android:text="@string/bt_page_bluetooth" />
+                    android:textSize="20sp" />
 
                 <Switch
                     android:id="@+id/bt_switch"
@@ -211,16 +211,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/paired_devices_section"
-                android:layout_marginStart="25dp"
-                android:layout_marginEnd="25dp"
-                android:layout_marginTop="25dp"
                 android:layout_alignParentEnd="true"
-                android:text="@string/bt_page_connect_button"
-                android:textColor="@color/white"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginEnd="25dp"
                 android:background="@drawable/bt_connect_button_selector"
                 android:backgroundTint="@null"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
+                android:text="@string/bt_page_connect_button"
+                android:textColor="@color/white"
                 android:textSize="16sp" />
 
         </RelativeLayout>

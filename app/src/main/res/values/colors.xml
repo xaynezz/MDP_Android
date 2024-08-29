@@ -8,4 +8,6 @@
     <color name="theme_light_blue">#DBE2EF</color>
     <color name="theme_blue">#3F72AF</color>
     <color name="theme_dark_blue">#112D4E</color>
+    <color name="theme_rock">#333333</color>
+    <color name="theme_mint">#77E4C8</color>
 </resources>
