@@ -1,6 +1,7 @@
 package com.example.mdp_android;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -8,7 +9,11 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -19,8 +24,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-//import com.example.mdp_android.MainActivity; // TODO: Uncomment later
-//import com.example.mdp_android.R; // TODO: Uncomment later
+import com.example.mdp_android.MainActivity;
+import com.example.mdp_android.R;
 
 
 
@@ -111,12 +116,19 @@ public class BluetoothConnectionManager {
         // Server socket used to listen for incoming connections
         private final BluetoothServerSocket ServerSocket;
 
-        @SuppressLint("MissingPermission")
         public AcceptConnectionThread() {
             BluetoothServerSocket temp = null;
+
+            // Check permissions before attempting to create a server socket
+            checkPermissions();
+
             try {
                 // Create a new server socket to listen for incoming connections
                 temp = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(appName, myUUID);
+            } catch (SecurityException se) {
+                // Handle the case where permission is not granted
+                Log.e(TAG, "Permission denied: BLUETOOTH_CONNECT");
+                se.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -179,13 +191,22 @@ public class BluetoothConnectionManager {
          * The main method of the OutgoingConnectionThread. Attempts to connect to the remote device.
          * If the connection is successful, it hands off the Bluetooth socket to the BluetoothCommunicationThread.
          */
-        @SuppressLint("MissingPermission")
         public void run() {
             BluetoothSocket temp = null;
+
+            // Check permissions before attempting to create a server socket
+            checkPermissions();
+
             try {
                 // Create a Bluetooth socket to connect to the remote device
                 temp = connectedDevice.createRfcommSocketToServiceRecord(deviceUUID);
-            } catch (IOException e) {
+            } catch(SecurityException se){
+                // Handle the case where permission is not granted
+                Log.e(TAG, "Permission denied: BLUETOOTH_CONNECT");
+                se.printStackTrace();
+                return; // Exit the method to avoid further processing without permission
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
             bluetoothSocket = temp;
@@ -251,7 +272,6 @@ public class BluetoothConnectionManager {
          *
          * @param socket The Bluetooth socket representing the connected device
          */
-        @SuppressLint("MissingPermission")
         public BluetoothCommunicationThread(BluetoothSocket socket) {
             Log.d(TAG, "BluetoothCommunicationThread: Starting.");
 
@@ -265,12 +285,12 @@ public class BluetoothConnectionManager {
             BluetoothConnectionStatus = true;
 
             // Update the UI on main page to reflect the connected status
-//            TextView status = MainActivity.getBluetoothStatus(); // TODO: Uncomment once implemented in MainActivity
-//            status.setText(R.string.bt_connected); // TODO: Uncomment once implemented in MainActivity
-//            status.setTextColor(Color.GREEN); // TODO: Uncomment once implemented in MainActivity
+            TextView status = MainActivity.getBluetoothStatus();
+            status.setText(R.string.bt_connected);
+            status.setTextColor(Color.GREEN);
 
-//            TextView device = MainActivity.getConnectedDevice(); // TODO: Uncomment once implemented in MainActivity
-//            device.setText(connectedDevice.getName()); // TODO: Uncomment once implemented in MainActivity
+            TextView device = MainActivity.getConnectedDevice();
+            device.setText(connectedDevice.getName());
 
             this.bluetoothSocket = socket;
 
@@ -329,9 +349,9 @@ public class BluetoothConnectionManager {
                     // Broadcast the connection status as "disconnected" if an error occurs
                     connectionStatus = new Intent("ConnectionStatus");
                     connectionStatus.putExtra("Status", "disconnected");
-//                    TextView status = MainActivity.getBluetoothStatus(); // TODO: Uncomment once implemented in MainActivity
-//                    status.setText(R.string.bt_disconnected); // TODO: Uncomment once implemented in MainActivity
-//                    status.setTextColor(Color.RED); // TODO: Uncomment once implemented in MainActivity
+                    TextView status = MainActivity.getBluetoothStatus();
+                    status.setText(R.string.bt_disconnected);
+                    status.setTextColor(Color.RED);
                     connectionStatus.putExtra("Device", connectedDevice);
                     LocalBroadcastManager.getInstance(context).sendBroadcast(connectionStatus);
 
@@ -440,4 +460,23 @@ public class BluetoothConnectionManager {
         Log.d(TAG, "write: Write is called.");
         bluetoothCommunicationThread.write(out);
     }
+
+
+    private void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
+                    context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+
+                // Request permissions
+                ((Activity) context).requestPermissions(new String[]{
+                                android.Manifest.permission.BLUETOOTH_SCAN,
+                                android.Manifest.permission.BLUETOOTH_CONNECT,
+                                android.Manifest.permission.BLUETOOTH_ADVERTISE,
+                                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                        1001); // Request code can be any number
+            }
+        }
+    }
+
 }
