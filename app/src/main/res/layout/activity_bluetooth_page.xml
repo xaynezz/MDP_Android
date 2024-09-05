@@ -115,7 +115,7 @@
 
             <!-- 3. Bluetooth search section -->
             <ImageButton
-                android:id="@+id/search_button"
+                android:id="@+id/bt_search_button"
                 android:layout_width="47dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/bt_toggle_section"
@@ -134,7 +134,7 @@
                 android:id="@+id/other_devices_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/search_button"
+                android:layout_below="@id/bt_search_button"
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="25dp"
                 android:layout_marginEnd="25dp"

@@ -1,7 +1,6 @@
 package com.example.mdp_android;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -17,10 +16,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -28,57 +29,72 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.example.mdp_android.MainActivity;
-import com.example.mdp_android.R;
 
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * BluetoothPage manages Bluetooth device scanning, pairing, and connection in a popup activity.
- * The class also listens for various Bluetooth-related broadcasts and handles reconnection attempts if a connection is lost.
- */
 public class BluetoothPage extends AppCompatActivity {
-    private static final String TAG = "BluetoothPage"; // Debugging tag for logging
-    private String connectionStatus; // Stores the current connection status
-    BluetoothAdapter bluetoothAdapter; // Bluetooth adapter for managing Bluetooth functionality
-    public ArrayList<BluetoothDevice> newBluetoothDevices; // List of newly discovered Bluetooth devices
-    public ArrayList<BluetoothDevice> pairedBluetoothDevices; // List of paired Bluetooth devices
-    public BluetoothDeviceListAdapter newDeviceListAdapter; // Adapter for displaying new devices in a ListView
-    public BluetoothDeviceListAdapter pairedDeviceListAdapter; // Adapter for displaying paired devices in a ListView
-    TextView connectionStatusTextView; // TextView to display connection status
-    ListView otherDevicesListView; // ListView for displaying new devices
-    ListView pairedDevicesListView; // ListView for displaying paired devices
-    Button connectButton; // Button to initiate connection to a selected device
-    ProgressDialog progressDialog; // Dialog for showing progress during connection attempts
 
-    SharedPreferences sharedPreferences; // SharedPreferences for persisting connection status
-    SharedPreferences.Editor sharedPreferencesEditor; // Editor for modifying SharedPreferences
+    private static final String TAG = "Bluetooth Debug";
 
-    BluetoothConnectionManager bluetoothConnectionManager; // Manages Bluetooth connection services
-    private static final UUID appUUID = UUID.fromString("00001101-0000-1000-8000-00805F9C34FA"); // Unique UUID for the app's Bluetooth service
-    public static BluetoothDevice selectedBluetoothDevice; // The selected Bluetooth device to connect to
+    private String connStatus;
+    BluetoothAdapter mBluetoothAdapter;
+    public ArrayList<BluetoothDevice> mNewBTDevices = new ArrayList<>();
+    public ArrayList<BluetoothDevice> mPairedBTDevices = new ArrayList<>();
+    public BluetoothDeviceListAdapter mNewDeviceListAdapter;
+    public BluetoothDeviceListAdapter mPairedDeviceListAdapter;
+    public static TextView connStatusTextView;
+    ListView lvNewDevices;
+    ListView lvPairedDevices;
+    Button connectBtn;
+    ImageButton btnSearch;
+    ProgressDialog myDialog;
 
-    boolean retryConnection = false; // Flag to indicate if reconnection attempts are needed
-    Handler reconnectionHandler = new Handler(); // Handler for scheduling reconnection attempts
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+    };
+    private static String[] PERMISSIONS_LOCATION = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+    };
 
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
 
-    // Runnable that attempts to reconnect to the Bluetooth device after a connection is lost
+    BluetoothConnectionManager mBluetoothConnection;
+    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    public static BluetoothDevice mBTDevice;
+
+    boolean retryConnection = false;
+    Handler reconnectionHandler = new Handler();
+
     Runnable reconnectionRunnable = new Runnable() {
         @Override
         public void run() {
             try {
                 if (!BluetoothConnectionManager.BluetoothConnectionStatus) {
-                    startBluetoothConnection(selectedBluetoothDevice, appUUID);
-                    Toast.makeText(BluetoothPage.this, "Reconnection Success", Toast.LENGTH_SHORT).show();
+                    showLog("Reconnecting...");
+                    startBTConnection(mBTDevice, MY_UUID);
+                    updateStatus("Reconnection Success");
                 }
                 reconnectionHandler.removeCallbacks(reconnectionRunnable);
                 retryConnection = false;
             } catch (Exception e) {
-                Toast.makeText(BluetoothPage.this, "Failed to reconnect, trying in 5 seconds", Toast.LENGTH_SHORT).show();
+                showLog("Reconnection failed");
+                e.printStackTrace();
+                updateStatus("Failed to reconnect, trying in 5 seconds");
             }
         }
     };
@@ -86,293 +102,264 @@ public class BluetoothPage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bluetooth_page);
+        setContentView(R.layout.activity_bluetooth_page);  // Adjust layout as necessary
 
-        try{
-            // Check permissions before performing any Bluetooth operations
-            checkPermissions();
+        sharedPreferences = getSharedPreferences("Shared Preferences", Context.MODE_PRIVATE);
 
-            // Set the window dimensions
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            Switch bluetoothSwitch = findViewById(R.id.bt_switch);
+        lvNewDevices = findViewById(R.id.other_devices_list);
+        lvPairedDevices = findViewById(R.id.paired_devices_list);
+        mNewBTDevices = new ArrayList<>();
+        mPairedBTDevices = new ArrayList<>();
 
-            // Set initial Bluetooth switch state
-            if (bluetoothAdapter.isEnabled()) {
-                bluetoothSwitch.setChecked(true);
-                bluetoothSwitch.setText(R.string.bt_page_switch_on);
+        connectBtn = findViewById(R.id.bt_connect_button);
+        btnSearch = findViewById(R.id.bt_search_button);
+
+        // Get bluetooth adapter
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        Switch bluetoothSwitch = findViewById(R.id.bt_switch);
+        if (mBluetoothAdapter.isEnabled()) {
+            bluetoothSwitch.setChecked(true);
+            bluetoothSwitch.setText("ON");
+        }
+
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        registerReceiver(mBroadcastReceiver4, filter);
+
+        IntentFilter filter2 = new IntentFilter("ConnectionStatus");
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver5, filter2);
+
+        lvNewDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                mBluetoothAdapter.cancelDiscovery();
+                lvPairedDevices.setAdapter(mPairedDeviceListAdapter);
+
+                String deviceName = mNewBTDevices.get(i).getName();
+                String deviceAddress = mNewBTDevices.get(i).getAddress();
+                Log.d(TAG, "onItemClick: A device is selected.");
+                Log.d(TAG, "onItemClick: DEVICE NAME: " + deviceName);
+                Log.d(TAG, "onItemClick: DEVICE ADDRESS: " + deviceAddress);
+
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    Log.d(TAG, "onItemClick: Initiating pairing with " + deviceName);
+                    mNewBTDevices.get(i).createBond();
+
+                    mBluetoothConnection = new BluetoothConnectionManager(BluetoothPage.this);
+                    mBTDevice = mNewBTDevices.get(i);
+                }
             }
+        });
 
-            // Initialize UI elements and lists
-            otherDevicesListView = findViewById(R.id.other_devices_list);
-            pairedDevicesListView = findViewById(R.id.paired_devices_list);
-            newBluetoothDevices = new ArrayList<>();
-            pairedBluetoothDevices = new ArrayList<>();
-            connectButton = findViewById(R.id.bt_connect_button);
+        lvPairedDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                mBluetoothAdapter.cancelDiscovery();
+                lvNewDevices.setAdapter(mNewDeviceListAdapter);
 
-            // Register broadcast receivers for Bluetooth events
-            IntentFilter bondStateChangedFilter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-            registerReceiver(bondStateChangedReceiver, bondStateChangedFilter);
+                String deviceName = mPairedBTDevices.get(i).getName();
+                String deviceAddress = mPairedBTDevices.get(i).getAddress();
+                Log.d(TAG, "onItemClick: A device is selected.");
+                Log.d(TAG, "onItemClick: DEVICE NAME: " + deviceName);
+                Log.d(TAG, "onItemClick: DEVICE ADDRESS: " + deviceAddress);
 
-            IntentFilter connectionStatusFilter = new IntentFilter("ConnectionStatus");
-            LocalBroadcastManager.getInstance(this).registerReceiver(connectionStatusReceiver, connectionStatusFilter);
+                mBluetoothConnection = new BluetoothConnectionManager(BluetoothPage.this);
+                mBTDevice = mPairedBTDevices.get(i);
+            }
+        });
 
-            // Set click listeners for device selection
-            otherDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    bluetoothAdapter.cancelDiscovery();
-                    pairedDevicesListView.setAdapter(pairedDeviceListAdapter);
+        bluetoothSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                Log.d(TAG, "onChecked: Enabling/Disabling Bluetooth");
+                if (isChecked) {
+                    compoundButton.setText("ON");
+                } else {
+                    compoundButton.setText("OFF");
+                }
 
-                    String deviceName = newBluetoothDevices.get(i).getName();
-                    String deviceAddress = newBluetoothDevices.get(i).getAddress();
-                    Log.d(TAG, "onItemClick: A device is selected.");
-                    Log.d(TAG, "onItemClick: DEVICE NAME: " + deviceName);
-                    Log.d(TAG, "onItemClick: DEVICE ADDRESS: " + deviceAddress);
+                if (mBluetoothAdapter == null) {
+                    Log.d(TAG, "enableDisableBT: Does not have Bluetooth capabilities");
+                    updateStatus("Error: Bluetooth is not supported on this device");
+                    compoundButton.setChecked(false);
+                } else {
+                    if (!mBluetoothAdapter.isEnabled()) {
+                        Log.d(TAG, "enableDisableBT: Enabling Bluetooth");
 
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                        Log.d(TAG, "onItemClick: Initiating pairing with " + deviceName);
-                        newBluetoothDevices.get(i).createBond();
+                        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+                        startActivity(discoverableIntent);
 
-                        bluetoothConnectionManager = new BluetoothConnectionManager(BluetoothPage.this);
-                        selectedBluetoothDevice = newBluetoothDevices.get(i);
+                        compoundButton.setChecked(true);
+
+                        IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+                        registerReceiver(mBroadcastReceiver1, BTIntent);
+                    }
+                    if (mBluetoothAdapter.isEnabled()) {
+                        Log.d(TAG, "enableDisableBT: Disabling Bluetooth");
+                        mBluetoothAdapter.disable();
+
+                        IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+                        registerReceiver(mBroadcastReceiver1, BTIntent);
                     }
                 }
-            });
+            }
+        });
 
-            pairedDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    bluetoothAdapter.cancelDiscovery();
-                    otherDevicesListView.setAdapter(newDeviceListAdapter);
-
-                    String deviceName = pairedBluetoothDevices.get(i).getName();
-                    String deviceAddress = pairedBluetoothDevices.get(i).getAddress();
-                    Log.d(TAG, "onItemClick: A device is selected.");
-                    Log.d(TAG, "onItemClick: DEVICE NAME: " + deviceName);
-                    Log.d(TAG, "onItemClick: DEVICE ADDRESS: " + deviceAddress);
-
-                    bluetoothConnectionManager = new BluetoothConnectionManager(BluetoothPage.this);
-                    selectedBluetoothDevice = pairedBluetoothDevices.get(i);
+        connectBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mBTDevice == null) {
+                    updateStatus("Please Select a Device before connecting.");
+                } else {
+                    startConnection();
                 }
-            });
+            }
+        });
 
-            // Handle Bluetooth switch toggling
-            bluetoothSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    Log.d(TAG, "onChecked: Switch button toggled. Enabling/Disabling Bluetooth");
-                    compoundButton.setText(isChecked ? "ON" : "OFF");
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: search button");
+                toggleButtonScan(view);
+            }
+        });
 
-                    if (bluetoothAdapter == null) {
-                        Log.d(TAG, "enableDisableBT: Device does not support Bluetooth capabilities!");
-                        Toast.makeText(BluetoothPage.this, "Device Does Not Support Bluetooth capabilities!", Toast.LENGTH_SHORT).show();
-                        compoundButton.setChecked(false);
-                    } else {
-                        if (!bluetoothAdapter.isEnabled()) {
-                            Log.d(TAG, "enableDisableBT: enabling Bluetooth");
-                            Log.d(TAG, "enableDisableBT: Making device discoverable for 600 seconds.");
+        LinearLayout backBtn = findViewById(R.id.left_side);
 
-                            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-                            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-                            startActivity(discoverableIntent);
+        connStatusTextView = findViewById(R.id.bt_page_connection_status);
+        connStatus = "Disconnected";
+        sharedPreferences = getSharedPreferences("Shared Preferences", Context.MODE_PRIVATE);
+        if (sharedPreferences.contains("connStatus"))
+            connStatus = sharedPreferences.getString("connStatus", "");
 
-                            compoundButton.setChecked(true);
+//        connStatusTextView.setText(connStatus);
+        runOnUiThread(() -> connStatusTextView.setText(connStatus));
 
-                            IntentFilter btStateChangedFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-                            registerReceiver(bluetoothStateChangedReceiver, btStateChangedFilter);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editor = sharedPreferences.edit();
+                editor.putString("connStatus", connStatusTextView.getText().toString());
+                editor.apply();
+                finish();
+            }
+        });
 
-                            IntentFilter scanModeChangedFilter = new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
-                            registerReceiver(scanModeChangedReceiver, scanModeChangedFilter);
-                        }
-                        if (bluetoothAdapter.isEnabled()) {
-                            Log.d(TAG, "enableDisableBT: disabling Bluetooth");
-                            bluetoothAdapter.disable();
-
-                            IntentFilter btStateChangedFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-                            registerReceiver(bluetoothStateChangedReceiver, btStateChangedFilter);
-                        }
+        myDialog = new ProgressDialog(this);
+        myDialog.setMessage("Waiting for other device to reconnect...");
+        myDialog.setCancelable(false);
+        myDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+//                dialog.dismiss();
+                runOnUiThread(() -> {
+                    if (myDialog.isShowing()) {
+                        myDialog.dismiss();
                     }
-                }
-            });
+                });
 
-            // Set connect button click listener
-            connectButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (selectedBluetoothDevice == null) {
-                        Toast.makeText(BluetoothPage.this, "Please Select a Device before connecting.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        startConnection();
-                    }
-                }
-            });
+            }
+        });
+    }
 
-// Handle back button click to save connection status
-            LinearLayout backButtonArea = findViewById(R.id.left_side);  // This is now the entire clickable area
-            connectionStatusTextView = findViewById(R.id.bt_page_connection_status);
-            connectionStatus = "Disconnected";
-            sharedPreferences = getApplicationContext().getSharedPreferences("Shared Preferences", Context.MODE_PRIVATE);
-
-            if (sharedPreferences.contains("connStatus"))
-                connectionStatus = sharedPreferences.getString("connStatus", "");
-
-            connectionStatusTextView.setText(connectionStatus);
-
-            backButtonArea.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    sharedPreferencesEditor = sharedPreferences.edit();
-                    sharedPreferencesEditor.putString("connStatus", connectionStatusTextView.getText().toString());
-                    sharedPreferencesEditor.commit();
-//                String s = connectionStatusTextView.getText().toString();
-                    //status.setText(s);
-                    finish();
-                }
-            });
-
-            // Set up the progress dialog for reconnection attempts
-            progressDialog = new ProgressDialog(BluetoothPage.this);
-            progressDialog.setMessage("Waiting for other device to reconnect...");
-            progressDialog.setCancelable(false);
-            progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-        } catch (SecurityException se) {
-            Log.e(TAG, "Permission denied for Bluetooth operations", se);
-            Toast.makeText(this, "Permission denied. Bluetooth operations cannot proceed.", Toast.LENGTH_SHORT).show();
-            finish(); // Optionally, might want to close the activity if permissions are not granted
+    private void checkBTPermissions() {
+        int permission1 = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permission2 = ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
+        if (permission1 != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, 1);
+        } else if (permission2 != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS_LOCATION, 1);
         }
     }
 
-    /**
-     * Initiates scanning for Bluetooth devices, discovering both paired and new devices.
-     */
-    public void startScanning() {
-        Log.d(TAG, "startScanning: Scanning for unpaired devices.");
-        newBluetoothDevices.clear();
-
-        try{
-            checkPermissions();
-
-            if (bluetoothAdapter != null) {
-                if (!bluetoothAdapter.isEnabled()) {
-                    Toast.makeText(BluetoothPage.this, "Please turn on Bluetooth first!", Toast.LENGTH_SHORT).show();
-                }
-                if (bluetoothAdapter.isDiscovering()) {
-                    bluetoothAdapter.cancelDiscovery();
-                    checkBluetoothPermissions();
-                    bluetoothAdapter.startDiscovery();
-                    IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-                    registerReceiver(deviceDiscoveryReceiver, discoverDevicesIntent);
-                } else if (!bluetoothAdapter.isDiscovering()) {
-                    checkBluetoothPermissions();
-                    bluetoothAdapter.startDiscovery();
-                    IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-                    registerReceiver(deviceDiscoveryReceiver, discoverDevicesIntent);
-                }
-                pairedBluetoothDevices.clear();
-                Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-                Log.d(TAG, "startScanning: Number of paired devices found: " + pairedDevices.size());
-                for (BluetoothDevice device : pairedDevices) {
-                    Log.d(TAG, "Paired Devices: " + device.getName() + " : " + device.getAddress());
-                    pairedBluetoothDevices.add(device);
-                    pairedDeviceListAdapter = new BluetoothDeviceListAdapter(this, R.layout.bluetooth_device_list_adapter, pairedBluetoothDevices);
-                    pairedDevicesListView.setAdapter(pairedDeviceListAdapter);
-                }
+    public void Scanning() {
+        Log.d(TAG, "toggleButton: Scanning for unpaired devices.");
+        checkBTPermissions();
+        mNewBTDevices.clear();
+        if (mBluetoothAdapter != null) {
+            if (!mBluetoothAdapter.isEnabled()) {
+                updateStatus("Please turn on Bluetooth first!");
             }
-        } catch (SecurityException se) {
-            Log.e(TAG, "Permission denied for Bluetooth operations", se);
-            Toast.makeText(this, "Permission denied. Bluetooth operations cannot proceed.", Toast.LENGTH_SHORT).show();
-            finish(); // Optionally, might want to close the activity if permissions are not granted
+            if (mBluetoothAdapter.isDiscovering()) {
+                mBluetoothAdapter.cancelDiscovery();
+                mBluetoothAdapter.startDiscovery();
+                IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+                registerReceiver(mBroadcastReceiver3, discoverDevicesIntent);
+            } else if (!mBluetoothAdapter.isDiscovering()) {
+                mBluetoothAdapter.startDiscovery();
+                IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+                registerReceiver(mBroadcastReceiver3, discoverDevicesIntent);
+            }
+            mPairedBTDevices.clear();
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+            Log.d(TAG, "toggleButton: Number of paired devices found: " + pairedDevices.size());
+            for (BluetoothDevice d : pairedDevices) {
+                Log.d(TAG, "Paired Devices: " + d.getName() + " : " + d.getAddress());
+                mPairedBTDevices.add(d);
+                mPairedDeviceListAdapter = new BluetoothDeviceListAdapter(this, R.layout.bluetooth_device_list_adapter, mPairedBTDevices);
+                lvPairedDevices.setAdapter(mPairedDeviceListAdapter);
+            }
         }
     }
 
-    /**
-     * Triggers the scanning process when the scan button is toggled.
-     */
     public void toggleButtonScan(View view) {
-        startScanning();
+        Scanning();
     }
 
-    /**
-     * Checks for necessary Bluetooth permissions.
-     * If permissions are not granted, they will be requested.
-     */
-    private void checkBluetoothPermissions() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
-            permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_COARSE_LOCATION");
-            if (permissionCheck != 0) {
-                this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
-            }
-        } else {
-            Log.d(TAG, "checkBluetoothPermissions: No need to check permissions. SDK version < LOLLIPOP.");
-        }
-    }
-
-    // BroadcastReceiver for Bluetooth state changes
-    private final BroadcastReceiver bluetoothStateChangedReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mBroadcastReceiver1 = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
-                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-
+            if (action.equals(mBluetoothAdapter.ACTION_STATE_CHANGED)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, mBluetoothAdapter.ERROR);
                 switch (state) {
                     case BluetoothAdapter.STATE_OFF:
-                        Log.d(TAG, "bluetoothStateChangedReceiver: STATE OFF");
+                        Log.d(TAG, "onReceive: STATE OFF");
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
-                        Log.d(TAG, "bluetoothStateChangedReceiver: STATE TURNING OFF");
+                        Log.d(TAG, "mBroadcastReceiver1: onReceive: STATE OFF");
                         break;
                     case BluetoothAdapter.STATE_ON:
-                        Log.d(TAG, "bluetoothStateChangedReceiver: STATE ON");
+                        Log.d(TAG, "onReceive: STATE ON");
                         break;
                     case BluetoothAdapter.STATE_TURNING_ON:
-                        Log.d(TAG, "bluetoothStateChangedReceiver: STATE TURNING ON");
+                        Log.d(TAG, "mBroadcastReceiver1: onReceive: STATE ON");
                         break;
                 }
             }
         }
     };
 
-    // BroadcastReceiver for Bluetooth scan mode changes (e.g., discoverability)
-    private final BroadcastReceiver scanModeChangedReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mBroadcastReceiver2 = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED)) {
                 final int mode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.ERROR);
-
                 switch (mode) {
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-                        Log.d(TAG, "scanModeChangedReceiver: Discoverability Enabled.");
+                        Log.d(TAG, "mBroadcastReceiver2: Discoverability Enabled.");
                         break;
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
-                        Log.d(TAG, "scanModeChangedReceiver: Discoverability Disabled. Able to receive connections.");
+                        Log.d(TAG, "mBroadcastReceiver2: Discoverability Disabled. Able to receive connections.");
                         break;
                     case BluetoothAdapter.SCAN_MODE_NONE:
-                        Log.d(TAG, "scanModeChangedReceiver: Discoverability Disabled. Not able to receive connections.");
+                        Log.d(TAG, "mBroadcastReceiver2: Discoverability Disabled. Not able to receive connections.");
                         break;
                     case BluetoothAdapter.STATE_CONNECTING:
-                        Log.d(TAG, "scanModeChangedReceiver: Connecting...");
+                        Log.d(TAG, "mBroadcastReceiver2: Connecting...");
                         break;
                     case BluetoothAdapter.STATE_CONNECTED:
-                        Log.d(TAG, "scanModeChangedReceiver: Connected.");
+                        Log.d(TAG, "mBroadcastReceiver2: Connected.");
                         break;
                 }
             }
         }
     };
 
-    // BroadcastReceiver for discovered devices during scanning
-    private final BroadcastReceiver deviceDiscoveryReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mBroadcastReceiver3 = new BroadcastReceiver() {
         @Override
-        @SuppressLint("MissingPermission")
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             Log.d(TAG, "onReceive: ACTION FOUND.");
@@ -380,98 +367,75 @@ public class BluetoothPage extends AppCompatActivity {
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    newBluetoothDevices.add(device);
+                    mNewBTDevices.add(device);
                     Log.d(TAG, "onReceive: " + device.getName() + " : " + device.getAddress());
-                    newDeviceListAdapter = new BluetoothDeviceListAdapter(context, R.layout.bluetooth_device_list_adapter, newBluetoothDevices);
-                    otherDevicesListView.setAdapter(newDeviceListAdapter);
+                    mNewDeviceListAdapter = new BluetoothDeviceListAdapter(context, R.layout.bluetooth_device_list_adapter, mNewBTDevices);
+                    lvNewDevices.setAdapter(mNewDeviceListAdapter);
                 }
             }
         }
     };
 
-    // BroadcastReceiver for Bluetooth bonding state changes (pairing)
-    private final BroadcastReceiver bondStateChangedReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mBroadcastReceiver4 = new BroadcastReceiver() {
         @Override
-        @SuppressLint("MissingPermission")
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
 
             if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
+                BluetoothDevice mDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
                     Log.d(TAG, "BOND_BONDED.");
-                    Toast.makeText(BluetoothPage.this, "Successfully paired with " + device.getName(), Toast.LENGTH_SHORT).show();
-                    selectedBluetoothDevice = device;
-                    startScanning();
+                    updateStatus("Successfully paired with " + mDevice.getName());
+                    Scanning();
                 }
-                if (device.getBondState() == BluetoothDevice.BOND_BONDING) {
+                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDING) {
                     Log.d(TAG, "BOND_BONDING.");
                 }
-                if (device.getBondState() == BluetoothDevice.BOND_NONE) {
+                if (mDevice.getBondState() == BluetoothDevice.BOND_NONE) {
                     Log.d(TAG, "BOND_NONE.");
                 }
             }
         }
     };
 
-    // BroadcastReceiver for handling connection status updates
-    private final BroadcastReceiver connectionStatusReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mBroadcastReceiver5 = new BroadcastReceiver() {
         @Override
-        @SuppressLint("MissingPermission")
         public void onReceive(Context context, Intent intent) {
-            BluetoothDevice device = intent.getParcelableExtra("Device");
+
+            BluetoothDevice mDevice = intent.getParcelableExtra("Device");
             String status = intent.getStringExtra("Status");
-            sharedPreferences = getApplicationContext().getSharedPreferences("Shared Preferences", Context.MODE_PRIVATE);
-            sharedPreferencesEditor = sharedPreferences.edit();
 
             if (status.equals("connected")) {
                 try {
-                    progressDialog.dismiss();
+//                    myDialog.dismiss();
+                    runOnUiThread(() -> {
+                        if (myDialog.isShowing()) {
+                            myDialog.dismiss();
+                        }
+                    });
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
 
-                Log.d(TAG, "connectionStatusReceiver: Device now connected to " + device.getName());
-                Toast.makeText(BluetoothPage.this, "Device now connected to " + device.getName(), Toast.LENGTH_SHORT).show();
-                sharedPreferencesEditor.putString("connStatus", "Connected to " + device.getName());
-                connectionStatusTextView.setText("Connected to " + device.getName());
+                Log.d(TAG, "mBroadcastReceiver5: Device now connected to " + mDevice.getName());
+                runOnUiThread(() -> connStatusTextView.setText("Connected to " + mDevice.getName()));
             } else if (status.equals("disconnected") && !retryConnection) {
-                Log.d(TAG, "connectionStatusReceiver: Disconnected from " + device.getName());
-                Toast.makeText(BluetoothPage.this, "Disconnected from " + device.getName(), Toast.LENGTH_SHORT).show();
-                bluetoothConnectionManager = new BluetoothConnectionManager(BluetoothPage.this);
+                Log.d(TAG, "mBroadcastReceiver5: Disconnected from " + mDevice.getName());
+                runOnUiThread(() -> connStatusTextView.setText("Disconnected"));
 
-                sharedPreferencesEditor.putString("connStatus", "Disconnected");
-                connectionStatusTextView.setText("Disconnected");
-                sharedPreferencesEditor.commit();
-
-                try {
-                    progressDialog.show();
-                } catch (Exception e) {
-                    Log.d(TAG, "BluetoothPage: connectionStatusReceiver Dialog show failure");
-                }
                 retryConnection = true;
                 reconnectionHandler.postDelayed(reconnectionRunnable, 5000);
             }
-            sharedPreferencesEditor.commit();
         }
     };
 
-    /**
-     * Starts the Bluetooth connection process with the selected device.
-     */
     public void startConnection() {
-        startBluetoothConnection(selectedBluetoothDevice, appUUID);
+        startBTConnection(mBTDevice, MY_UUID);
     }
 
-    /**
-     * Initializes the Bluetooth connection using the provided device and UUID.
-     *
-     * @param device The Bluetooth device to connect to.
-     * @param uuid   The UUID for the Bluetooth service.
-     */
-    public void startBluetoothConnection(BluetoothDevice device, UUID uuid) {
-        Log.d(TAG, "startBluetoothConnection: Initializing RFCOM Bluetooth Connection");
-        bluetoothConnectionManager.startOutgoingConnectionThread(device, uuid);
+    public void startBTConnection(BluetoothDevice device, UUID uuid) {
+        Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection");
+        mBluetoothConnection.startClientThread(device, uuid);
     }
 
     @Override
@@ -479,11 +443,11 @@ public class BluetoothPage extends AppCompatActivity {
         Log.d(TAG, "onDestroy: called");
         super.onDestroy();
         try {
-            unregisterReceiver(bluetoothStateChangedReceiver);
-            unregisterReceiver(scanModeChangedReceiver);
-            unregisterReceiver(deviceDiscoveryReceiver);
-            unregisterReceiver(bondStateChangedReceiver);
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(connectionStatusReceiver);
+            unregisterReceiver(mBroadcastReceiver1);
+            unregisterReceiver(mBroadcastReceiver2);
+            unregisterReceiver(mBroadcastReceiver3);
+            unregisterReceiver(mBroadcastReceiver4);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver5);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -494,44 +458,25 @@ public class BluetoothPage extends AppCompatActivity {
         Log.d(TAG, "onPause: called");
         super.onPause();
         try {
-            unregisterReceiver(bluetoothStateChangedReceiver);
-            unregisterReceiver(scanModeChangedReceiver);
-            unregisterReceiver(deviceDiscoveryReceiver);
-            unregisterReceiver(bondStateChangedReceiver);
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(connectionStatusReceiver);
+            unregisterReceiver(mBroadcastReceiver1);
+            unregisterReceiver(mBroadcastReceiver2);
+            unregisterReceiver(mBroadcastReceiver3);
+            unregisterReceiver(mBroadcastReceiver4);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver5);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void finish() {
-        Intent data = new Intent();
-        data.putExtra("mBTDevice", selectedBluetoothDevice);
-        data.putExtra("myUUID", appUUID);
-        setResult(RESULT_OK, data);
-        super.finish();
+    private void showLog(String message) {
+        Log.d(TAG, message);
     }
 
-    private void checkPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // For Android 12 and above
-            if (checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
-                    checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
-                    checkSelfPermission(Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED ||
-                    checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                    checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                // Request the necessary permissions
-                requestPermissions(new String[]{
-                        Manifest.permission.BLUETOOTH_SCAN,
-                        Manifest.permission.BLUETOOTH_CONNECT,
-                        Manifest.permission.BLUETOOTH_ADVERTISE,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                }, 1001); // Request code can be any number
-            }
-        }
+    private void updateStatus(String message) {
+        runOnUiThread(() -> {
+            Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.TOP, 0, 0);
+            toast.show();
+        });
     }
-
 }

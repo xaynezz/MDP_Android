@@ -19,16 +19,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.example.mdp_android.BluetoothConnectionManager;
-import com.example.mdp_android.MainActivity;
-import com.example.mdp_android.R;
-
 import java.nio.charset.Charset;
 
 
 /**
  * A fragment representing the Bluetooth communication UI, allowing users to send and receive messages.
- *
  * This fragment displays the chat interface for Bluetooth communication, handles sending messages,
  * and listens for incoming messages via a BroadcastReceiver.
  */
@@ -41,7 +36,6 @@ public class BluetoothComms extends Fragment {
 
     /**
      * SharedPreferences used for storing messages.
-     *
      * SharedPreferences allows storing and retrieving messages that are sent, so that the data persists even
      * after the app is closed or the device is restarted.
      */
@@ -49,7 +43,6 @@ public class BluetoothComms extends Fragment {
 
     /**
      * TextView for displaying received messages.
-     *
      * This TextView displays messages received via Bluetooth in the chat interface.
      */
     private TextView receivedMessagesTextView;
@@ -60,22 +53,7 @@ public class BluetoothComms extends Fragment {
     private EditText messageInputEditText;
 
     /**
-     * The MainActivity that this fragment is attached to.
-     */
-    private final MainActivity mainActivity;
-
-    /**
-     * Constructs a new instance of the BluetoothComms fragment.
-     *
-     * @param main The MainActivity that this fragment is attached to.
-     */
-    public BluetoothComms(MainActivity main) {
-        this.mainActivity = main;
-    }
-
-    /**
      * Called upon fragment creation.
-     *
      * @param savedInstanceState The saved instance state.
      */
     @Override
@@ -90,7 +68,6 @@ public class BluetoothComms extends Fragment {
 
     /**
      * Called when the fragment's UI is being created.
-     *
      * This method inflates the fragment's layout and initializes the UI elements, including setting up
      * listeners for the send button.
      *
@@ -119,6 +96,7 @@ public class BluetoothComms extends Fragment {
 
         // Set a click listener on the send button to handle sending messages
         sendButton.setOnClickListener(view -> {
+            logDebugMessage("Clicked send button");
             String messageToSend = this.messageInputEditText.getText().toString();
 
             // Store the message in SharedPreferences
@@ -136,6 +114,7 @@ public class BluetoothComms extends Fragment {
                 byte[] bytes = messageToSend.getBytes(Charset.defaultCharset());
                 BluetoothConnectionManager.write(bytes);
             }
+            logDebugMessage("Exiting send button");
         });
 
         return root;
@@ -152,7 +131,6 @@ public class BluetoothComms extends Fragment {
 
     /**
      * BroadcastReceiver to handle incoming messages via Bluetooth.
-     *
      * When a message is received via Bluetooth, it is broadcast within the app using an intent,
      * and this receiver updates the UI by appending the received message to the TextView.
      */
