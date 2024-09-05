@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         // CHAT is for sending and receiving BT message to and from STM
         // MAP CONFIG is for configuring the map layout
         // CHALLENGE provides quick access to execute the algo for img recognition & fastest path
-        this.btFragment = new BluetoothComms(this);
+        this.btFragment = new BluetoothComms();
         this.mapTabFragment = new MapConfigFragment(this);
         this.challengeFragment = new ChallengeFragment(this);
         this.gridMap = new GridMap(this);
