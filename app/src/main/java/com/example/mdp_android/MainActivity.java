@@ -408,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
      * Creates start RPI message
      */
     public String getStartRpiMessage() {
-        return "{'cat': 'control', 'value': 'start'}";
+        return "{\"cat\": \"control\", \"value\": \"start\"}";
     }
 
     @Override
