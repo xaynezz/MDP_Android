@@ -144,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
                 (dialog, which) -> dialog.dismiss()
         );
 
-        directionMap.put("North", 0);
+        directionMap.puit stat("North", 0);
         directionMap.put("East", 2);
         directionMap.put("South", 4);
-        directionMap.put("West", 8);
+        directionMap.put("West", 6);
     }
 
     /**
