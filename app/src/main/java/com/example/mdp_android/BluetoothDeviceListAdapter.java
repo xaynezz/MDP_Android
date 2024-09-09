@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import com.example.mdp_android.R;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class BluetoothDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
     private final LayoutInflater layoutInflater; // Inflater for creating views
     private final ArrayList<BluetoothDevice> bluetoothDevices; // List of Bluetooth devices to display
     private final int resourceViewId; // Resource ID for the layout of each item in the list
+    private int selectedPosition = -1; // To track the currently selected item in the list view
 
     /**
      * Constructor for the BluetoothDeviceListAdapter.
@@ -67,8 +70,24 @@ public class BluetoothDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
             if (deviceAddressTextView != null) {
                 deviceAddressTextView.setText(device.getAddress());
             }
+
+            // Apply color overlay on top of the item drawable (bt_rounded_theme_background) if the item is selected
+            if (position == selectedPosition) {
+                convertView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.selected_item_overlay)); // Color overlay for selected item
+            } else {
+                convertView.setBackgroundColor(ContextCompat.getColor(getContext(), android.R.color.transparent)); // Transparent for non-selected items
+            }
         }
 
         return convertView;
+    }
+
+    /** Method to get the selected position and refresh the list
+     *
+     * @param position The position of the selected item in the list
+     */
+    public void setSelectedPosition(int position) {
+        this.selectedPosition = position;
+        notifyDataSetChanged(); // Notify the adapter to refresh the ListView
     }
 }
