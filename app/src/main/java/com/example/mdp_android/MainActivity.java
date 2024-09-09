@@ -1,5 +1,7 @@
 package com.example.mdp_android;
 
+import static com.example.mdp_android.GridMap.IMAGE_BEARING;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -26,7 +28,13 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private static TextView bluetoothStatus, bluetoothDevice;
     private ImageButton upBtn, downBtn, leftBtn, rightBtn;
     private ProgressDialog btDisconnectDialog;
+    Map<String, Integer> directionMap = new HashMap<>();
     public boolean imgRecTimerFlag = false;
     public boolean fastestCarTimerFlag = false;
     private BluetoothComms btFragment;
@@ -134,6 +143,11 @@ public class MainActivity extends AppCompatActivity {
                 "Cancel",
                 (dialog, which) -> dialog.dismiss()
         );
+
+        directionMap.put("North", 0);
+        directionMap.put("East", 2);
+        directionMap.put("South", 4);
+        directionMap.put("West", 8);
     }
 
     /**
@@ -353,6 +367,49 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Creates obstacle RPI message in the following format:
+     * {
+     *     "cat": "obstacles",
+     *     "value": {
+     *         "obstacles": [{"x": 5, "y": 10, "id": 1, "d": 2}, {"x": 18, "y": 0, "id": 2, "d": 0}],
+     *         "mode": "0"
+     *     }
+     * }
+     */
+    public String getObstacleRpiMessage() throws JSONException {
+        JSONObject outerObject = new JSONObject();
+        JSONObject valueObject = new JSONObject();
+        JSONArray obstacleArray = new JSONArray();
+        for (int i = 0; i < this.gridMap.getObstacleCoord().size(); i ++) {
+            int[] currentObstacle = this.gridMap.getObstacleCoord().get(i);
+            String imageBearing = IMAGE_BEARING[currentObstacle[1] - 1][currentObstacle[0] - 1];
+
+            JSONObject obstacleObject = new JSONObject();
+            obstacleObject.put("x", currentObstacle[0]);
+            obstacleObject.put("y", currentObstacle[1]);
+            obstacleObject.put("d", directionMap.get(imageBearing));
+            obstacleObject.put("id", currentObstacle[2]);
+
+            obstacleArray.put(obstacleObject);
+
+        }
+
+        valueObject.put("obstacles", obstacleArray);
+        valueObject.put("mode", "0");
+
+        outerObject.put("cat", "obstacles");
+        outerObject.put("value", valueObject);
+
+        return outerObject.toString();
+    }
+
+    /**
+     * Creates start RPI message
+     */
+    public String getStartRpiMessage() {
+        return "{\"cat\": \"control\", \"value\": \"start\"}";
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

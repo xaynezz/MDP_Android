@@ -16,6 +16,8 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import org.json.JSONException;
+
 import java.util.Locale;
 
 public class ChallengeFragment extends Fragment {
@@ -249,9 +251,13 @@ public class ChallengeFragment extends Fragment {
             else if (this.imgRecBtn.getText().equals("STOP")) {
                 this.mainActivity.imgRecTimerFlag = false;
                 this.showToast("Image Recognition Started!!");
-                String getObsPos = this.gridMap.getAllObstacles();
-                getObsPos = "OBS|" + getObsPos;
-                this.mainActivity.sendMessage(getObsPos);
+                // TODO: proper error handling of this, and also probably better to only send start msg here
+                try {
+                    this.mainActivity.sendMessage(this.mainActivity.getObstacleRpiMessage());
+                } catch (JSONException e) {
+                    Log.e(TAG, e.toString());
+                }
+                this.mainActivity.sendMessage(this.mainActivity.getStartRpiMessage());
                 this.robotStatusText.setText(R.string.img_rec_start);
                 this.imgRecTime = System.currentTimeMillis();
                 timerHandler.postDelayed(imgRecTimer, 0);
@@ -268,7 +274,7 @@ public class ChallengeFragment extends Fragment {
             // changed from START to STOP (i.e., challenge started)
             else if (fastestCarBtn.getText().equals("STOP")) {
                 this.showToast("Fastest Car started!");
-                this.mainActivity.sendMessage("STM|Start");
+                this.mainActivity.sendMessage(this.mainActivity.getStartRpiMessage());
                 this.mainActivity.fastestCarTimerFlag = false;
                 this.robotStatusText.setText(R.string.fastest_car_start);
                 this.fastestCarTime = System.currentTimeMillis();
