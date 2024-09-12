@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
                         default:
                             throw new JSONException("Incorrect direction received from RPI");
                     }
-                    gridMap.moveRobotFromMessage(xCoord, yCoord, direction);
+                    gridMap.moveRobotFromMessage(xCoord + 1, yCoord + 1, direction);
                 } else if (messageObject.getString("cat").equals("status") && messageObject.getString("value").equals("finished")) {
                     ToggleButton imgRecBtn = findViewById(R.id.task1_start);
                     ToggleButton fastestCarBtn = findViewById(R.id.task2_start);
