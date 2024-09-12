@@ -386,8 +386,9 @@ public class MainActivity extends AppCompatActivity {
             String imageBearing = IMAGE_BEARING[currentObstacle[1] - 1][currentObstacle[0] - 1];
 
             JSONObject obstacleObject = new JSONObject();
-            obstacleObject.put("x", currentObstacle[0]);
-            obstacleObject.put("y", currentObstacle[1]);
+            // Decrement x and y by 1 for algo
+            obstacleObject.put("x", currentObstacle[0] - 1);
+            obstacleObject.put("y", currentObstacle[1] - 1);
             obstacleObject.put("d", directionMap.get(imageBearing));
             obstacleObject.put("id", currentObstacle[2]);
 
