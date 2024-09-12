@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         directionMap.put("North", 0);
         directionMap.put("East", 2);
         directionMap.put("South", 4);
-        directionMap.put("West", 8);
+        directionMap.put("West", 6);
     }
 
     /**
