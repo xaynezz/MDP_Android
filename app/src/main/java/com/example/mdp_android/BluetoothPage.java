@@ -138,6 +138,11 @@ public class BluetoothPage extends AppCompatActivity {
                 mBluetoothAdapter.cancelDiscovery();
                 lvPairedDevices.setAdapter(mPairedDeviceListAdapter);
 
+                // Set the selected item in the adapter
+                mNewDeviceListAdapter.setSelectedPosition(i);
+                // Clear selection from paired devices, if any
+                mPairedDeviceListAdapter.setSelectedPosition(-1);
+
                 String deviceName = mNewBTDevices.get(i).getName();
                 String deviceAddress = mNewBTDevices.get(i).getAddress();
                 Log.d(TAG, "onItemClick: A device is selected.");
@@ -159,6 +164,11 @@ public class BluetoothPage extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 mBluetoothAdapter.cancelDiscovery();
                 lvNewDevices.setAdapter(mNewDeviceListAdapter);
+
+                // Set the selected item in the paired devices adapter
+                mPairedDeviceListAdapter.setSelectedPosition(i);
+                // Clear selection from new devices, if any
+                mNewDeviceListAdapter.setSelectedPosition(-1);
 
                 String deviceName = mPairedBTDevices.get(i).getName();
                 String deviceAddress = mPairedBTDevices.get(i).getAddress();
