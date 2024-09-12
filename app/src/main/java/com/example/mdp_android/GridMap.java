@@ -1001,6 +1001,31 @@ public class GridMap extends View {
     }
 
     /**
+     * Moving the robot when receiving message from RPI
+     * @param x New x coordinate of robot
+     * @param y New y coordinate of robot
+     * @param direction New direction robot is facing
+     */
+    public void moveRobotFromMessage(int x, int y, String direction) {
+        switch (direction) {
+            case "up":
+                GridMap.robotBearing = 0;
+                break;
+            case "right":
+                GridMap.robotBearing = 90;
+                break;
+            case "down":
+                GridMap.robotBearing = 180;
+                break;
+            case "left":
+                GridMap.robotBearing = 270;
+                break;
+        }
+        this.extrapolateRobot(new int[]{x, y}, direction);
+        this.invalidate();
+    }
+
+    /**
      * Converts negative angles into positive angles
      * @param angle Angle to be converted
      * @return Non-negative equivalent of the angle passed in.

@@ -334,35 +334,60 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("receivedMessage");
             System.out.println("debug" + message);
-            if (message.contains("IMG")) {
-                String[] cmd = message.split("-");
-                gridMap.updateImageID(cmd[1], cmd[2]);
-            } else if (message.contains("UPDATE")) {
-                String[] cmd = message.split("-");
-                int xPos = (int) Float.parseFloat(cmd[1]);
-                int yPos = (int) Float.parseFloat(cmd[2]);
-                double bearing;
-                if (cmd[3].contains("N")) {
-                    bearing = (double) -1 * Float.parseFloat(cmd[3].substring(1));
-                } else {
-                    bearing = Float.parseFloat(cmd[3]);
-                }
-                gridMap.moveRobot(new int[]{xPos, yPos}, bearing);
-            } else if (message.equals("ENDED")) {
-                ToggleButton imgRecBtn = findViewById(R.id.task1_start);
-                ToggleButton fastestCarBtn = findViewById(R.id.task2_start);
 
-                if (imgRecBtn.isChecked()) {
-                    imgRecTimerFlag = true;
-                    imgRecBtn.setChecked(false);
-                    robotStatusText.setText(R.string.image_rec_end);
-                    ChallengeFragment.timerHandler.removeCallbacks(challengeFragment.imgRecTimer);
-                } else if (fastestCarBtn.isChecked()) {
-                    imgRecTimerFlag = true;
-                    fastestCarBtn.setChecked(false);
-                    robotStatusText.setText(R.string.fastest_car_end);
-                    ChallengeFragment.timerHandler.removeCallbacks(challengeFragment.fastestCarTimer);
+            // String imageMessage = "{\"cat\": \"image-rec\", \"value\": {\"image_id\": \"A\", \"obstacle_id\":  \"1\"}}";
+            // String locationMessage = "{\"cat\": \"location\", \"value\": {\"x\": 1, \"y\": 1, \"d\": 0}}";
+
+            try {
+                JSONObject messageObject = new JSONObject(message);
+                if (messageObject.getString("cat").equals("image-rec")) {
+                    JSONObject valueObject = messageObject.getJSONObject("value");
+                    String imageId = valueObject.getString("image_id");
+                    String obstacleId = valueObject.getString("obstacle_id");
+                    gridMap.updateImageID(obstacleId, imageId);
+                } else if (messageObject.getString("cat").equals("location")) {
+                    JSONObject valueObject = messageObject.getJSONObject("value");
+                    int xCoord = valueObject.getInt("x");
+                    int yCoord = valueObject.getInt("y");
+                    int d = valueObject.getInt("d");
+                    String direction;
+                    switch (d) {
+                        case 0:
+                            direction = "up";
+                            break;
+                        case 2:
+                            direction = "right";
+                            break;
+                        case 4:
+                            direction = "down";
+                            break;
+                        case 6:
+                            direction = "left";
+                            break;
+                        default:
+                            throw new JSONException("Incorrect direction received from RPI");
+                    }
+                    gridMap.moveRobotFromMessage(xCoord, yCoord, direction);
+                } else if (messageObject.getString("cat").equals("status") && messageObject.getString("value").equals("finished")) {
+                    ToggleButton imgRecBtn = findViewById(R.id.task1_start);
+                    ToggleButton fastestCarBtn = findViewById(R.id.task2_start);
+
+                    if (imgRecBtn.isChecked()) {
+                        imgRecTimerFlag = true;
+                        imgRecBtn.setChecked(false);
+                        robotStatusText.setText(R.string.image_rec_end);
+                        ChallengeFragment.timerHandler.removeCallbacks(challengeFragment.imgRecTimer);
+                    } else if (fastestCarBtn.isChecked()) {
+                        imgRecTimerFlag = true;
+                        fastestCarBtn.setChecked(false);
+                        robotStatusText.setText(R.string.fastest_car_end);
+                        ChallengeFragment.timerHandler.removeCallbacks(challengeFragment.fastestCarTimer);
+                    }
                 }
+
+            } catch (JSONException e) {
+                Log.e(TAG, e.getMessage());
+                throw new RuntimeException(e);
             }
         }
     };
