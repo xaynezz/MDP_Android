@@ -146,17 +146,21 @@ public class ChallengeFragment extends Fragment {
                 this.direction = this.gridMap.getRobotDirection();
                 // handles translation based on existing direction
                 switch (this.direction) {
-                    case "up":
+                    case "up": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0], this.curCoord[1] + 1}, 0);
+                        this.mainActivity.sendMessageForRobot("f", 1);
                         break;
-                    case "left":
+                    case "left": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] - 1, this.curCoord[1]}, 0);
+                        this.mainActivity.sendMessageForRobot("f", 1);
                         break;
-                    case "down":
+                    case "down": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0], this.curCoord[1] - 1}, 0);
+                        this.mainActivity.sendMessageForRobot("f", 1);
                         break;
-                    case "right":
+                    case "right": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] + 1, this.curCoord[1]}, 0);
+                        this.mainActivity.sendMessageForRobot("f", 1);
                         break;
                 }
                 // refreshes the UI displayed coordinate of robot
@@ -171,17 +175,29 @@ public class ChallengeFragment extends Fragment {
                 this.curCoord = this.gridMap.getCurCoord();
                 this.direction = this.gridMap.getRobotDirection();
                 switch (this.direction) {
-                    case "up":
+                    case "up": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] + 4, this.curCoord[1] + 2}, -90);
+                        this.mainActivity.sendMessageForRobot("f", 2);
+                        this.mainActivity.sendMessageForRobot("tr", 1);
+                        this.mainActivity.sendMessageForRobot("f", 3);
                         break;
-                    case "left":
+                    case "left": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] - 2, this.curCoord[1] + 4}, -90);
+                        this.mainActivity.sendMessageForRobot("f", 2);
+                        this.mainActivity.sendMessageForRobot("tr", 1);
+                        this.mainActivity.sendMessageForRobot("f", 3);
                         break;
-                    case "down":
+                    case "down": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] - 4, this.curCoord[1] - 2}, -90);
+                        this.mainActivity.sendMessageForRobot("f", 2);
+                        this.mainActivity.sendMessageForRobot("tr", 1);
+                        this.mainActivity.sendMessageForRobot("f", 3);
                         break;
-                    case "right":
+                    case "right": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] + 2, this.curCoord[1] - 4}, -90);
+                        this.mainActivity.sendMessageForRobot("f", 2);
+                        this.mainActivity.sendMessageForRobot("tr", 1);
+                        this.mainActivity.sendMessageForRobot("f", 3);
                         break;
                 }
 
@@ -196,17 +212,21 @@ public class ChallengeFragment extends Fragment {
                 this.curCoord = this.gridMap.getCurCoord();
                 this.direction = this.gridMap.getRobotDirection();
                 switch (this.direction) {
-                    case "up":
+                    case "up": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0], this.curCoord[1] - 1}, 0);
+                        this.mainActivity.sendMessageForRobot("r", 1);
                         break;
-                    case "left":
+                    case "left": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] + 1, this.curCoord[1]}, 0);
+                        this.mainActivity.sendMessageForRobot("r", 1);
                         break;
-                    case "down":
+                    case "down": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0], this.curCoord[1] + 1}, 0);
+                        this.mainActivity.sendMessageForRobot("r", 1);
                         break;
-                    case "right":
+                    case "right": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] - 1, this.curCoord[1]}, 0);
+                        this.mainActivity.sendMessageForRobot("r", 1);
                         break;
                 }
                 this.mainActivity.refreshCoordinate();
@@ -221,17 +241,29 @@ public class ChallengeFragment extends Fragment {
                 this.curCoord = this.gridMap.getCurCoord();
                 this.direction = this.gridMap.getRobotDirection();
                 switch (this.direction) {
-                    case "up":
+                    case "up": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] - 4, this.curCoord[1] + 1}, 90);
+                        this.mainActivity.sendMessageForRobot("f", 2);
+                        this.mainActivity.sendMessageForRobot("tl", 1);
+                        this.mainActivity.sendMessageForRobot("f", 4);
                         break;
-                    case "left":
+                    case "left": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] - 1, this.curCoord[1] - 4}, 90);
+                        this.mainActivity.sendMessageForRobot("f", 2);
+                        this.mainActivity.sendMessageForRobot("tl", 1);
+                        this.mainActivity.sendMessageForRobot("f", 4);
                         break;
-                    case "down":
+                    case "down": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] + 4, this.curCoord[1] - 1}, 90);
+                        this.mainActivity.sendMessageForRobot("f", 2);
+                        this.mainActivity.sendMessageForRobot("tl", 1);
+                        this.mainActivity.sendMessageForRobot("f", 4);
                         break;
-                    case "right":
+                    case "right": // checked
                         this.gridMap.moveRobot(new int[]{this.curCoord[0] + 1, this.curCoord[1] + 4}, 90);
+                        this.mainActivity.sendMessageForRobot("f", 2);
+                        this.mainActivity.sendMessageForRobot("tl", 1);
+                        this.mainActivity.sendMessageForRobot("f", 4);
                         break;
                 }
                 this.mainActivity.refreshCoordinate();

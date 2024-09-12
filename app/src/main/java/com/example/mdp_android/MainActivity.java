@@ -245,6 +245,24 @@ public class MainActivity extends AppCompatActivity {
         this.printMessage(message);
     }
 
+    public void sendMessageForRobot(String message, int count) {
+        this.editor = this.sharedPreferences.edit();
+        if (BluetoothConnectionManager.BluetoothConnectionStatus) {
+            for (int i = 0; i < count; i++) {
+                byte[] bytes = message.getBytes(Charset.defaultCharset());
+                BluetoothConnectionManager.write(bytes);
+                this.printMessage(message);  
+                try {
+                    Thread.sleep(550);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    // Log the interruption if needed
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     /**
      * Basically adds a new line after the message is sent, so that the next message will appear on new line
      * @param message Last message that was sent over via BT

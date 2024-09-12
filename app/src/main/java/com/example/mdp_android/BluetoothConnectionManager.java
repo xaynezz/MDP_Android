@@ -22,7 +22,9 @@ import java.util.UUID;
 public class BluetoothConnectionManager {
     private static final String TAG = "Debugging Tag";
     private static final String appName = "MDP_Group_21";
-    private static final UUID MY_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+//    private static final UUID MY_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+    public static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
 
     private final BluetoothAdapter mBluetoothAdapter;
     Context mContext;

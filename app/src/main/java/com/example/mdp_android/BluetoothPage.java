@@ -74,7 +74,8 @@ public class BluetoothPage extends AppCompatActivity {
     SharedPreferences.Editor editor;
 
     BluetoothConnectionManager mBluetoothConnection;
-    private static final UUID MY_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+//    private static final UUID MY_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+    public static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     public static BluetoothDevice mBTDevice;
 
     boolean retryConnection = false;
