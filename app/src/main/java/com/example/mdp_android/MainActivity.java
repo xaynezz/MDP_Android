@@ -387,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (JSONException e) {
                 Log.e(TAG, e.getMessage());
-                throw new RuntimeException(e);
+                btFragment.getReceivedMessagesTextView().append(e.getMessage() + "\n");
             }
         }
     };
