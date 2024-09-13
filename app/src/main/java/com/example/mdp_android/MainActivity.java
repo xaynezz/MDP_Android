@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothComms btFragment;
     private MapConfigFragment mapTabFragment;
     private ChallengeFragment challengeFragment;
+    Map<String, String> symbolMap = new HashMap<>();
 
     /**
      * onCreate is called when the app runs
@@ -148,6 +149,38 @@ public class MainActivity extends AppCompatActivity {
         directionMap.put("East", 2);
         directionMap.put("South", 4);
         directionMap.put("West", 6);
+
+        symbolMap.put("10", "\uD83C\uDFAF");
+        symbolMap.put("11", "1");
+        symbolMap.put("12", "2");
+        symbolMap.put("13", "3");
+        symbolMap.put("14", "4");
+        symbolMap.put("15", "5");
+        symbolMap.put("16", "6");
+        symbolMap.put("17", "7");
+        symbolMap.put("18", "8");
+        symbolMap.put("19", "9");
+        symbolMap.put("20", "A");
+        symbolMap.put("21", "B");
+        symbolMap.put("22", "C");
+        symbolMap.put("23", "D");
+        symbolMap.put("24", "E");
+        symbolMap.put("25", "F");
+        symbolMap.put("26", "G");
+        symbolMap.put("27", "H");
+        symbolMap.put("28", "S");
+        symbolMap.put("29", "T");
+        symbolMap.put("30", "U");
+        symbolMap.put("31", "V");
+        symbolMap.put("32", "W");
+        symbolMap.put("33", "X");
+        symbolMap.put("34", "Y");
+        symbolMap.put("35", "Z");
+        symbolMap.put("36", "⬆");
+        symbolMap.put("37", "⬇");
+        symbolMap.put("38", "➡");
+        symbolMap.put("39", "⬅");
+        symbolMap.put("40", "⚪");
     }
 
     /**
@@ -344,7 +377,9 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject valueObject = messageObject.getJSONObject("value");
                     String imageId = valueObject.getString("image_id");
                     String obstacleId = valueObject.getString("obstacle_id");
-                    gridMap.updateImageID(obstacleId, imageId);
+                    if (symbolMap.containsKey(imageId)) {
+                        gridMap.updateImageID(obstacleId, symbolMap.get(imageId));
+                    }
                 } else if (messageObject.getString("cat").equals("location")) {
                     JSONObject valueObject = messageObject.getJSONObject("value");
                     int xCoord = valueObject.getInt("x");

@@ -27,10 +27,17 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp">
 
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:srcCompat="@drawable/group_icon" />
+
             <TextView
                 android:id="@+id/group_label_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:layout_weight="1"
                 android:text="@string/group_name"
                 android:textColor="@color/theme_dark_blue"
