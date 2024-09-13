@@ -953,18 +953,20 @@ public class GridMap extends View {
      * Main driver function to move the robot
      * @param angle The angle the robot is turning
      */
-    public void moveRobot(int[] nextCoord, double angle) {
+    public boolean moveRobot(int[] nextCoord, double angle) {
         String robotDirection = this.getRobotDirection();   // current direction of the robot
         boolean flag = false;
         GridMap.robotBearing += angle;
         double offset = GridMap.robotBearing % 360;
         offset = this.handleAngle(offset);
+        boolean isValidMove = false;
         // facing N
         if (offset > 45 && offset <= 135) {
             if (nextCoord[1] <= 20 && nextCoord[1] > 1 && nextCoord[0] >= 1 && nextCoord[0] < 20
                     && validMove(nextCoord, "up")) {
                 flag = true;
                 robotDirection = "up";
+                isValidMove = true;
             }
         }
         // facing W
@@ -973,6 +975,7 @@ public class GridMap extends View {
                     && validMove(nextCoord, "left")) {
                 flag = true;
                 robotDirection = "left";
+                isValidMove = true;
             }
         }
         // facing S
@@ -981,6 +984,7 @@ public class GridMap extends View {
                     && validMove(nextCoord, "down")) {
                 flag = true;
                 robotDirection = "down";
+                isValidMove = true;
             }
         }
         // facing E
@@ -989,6 +993,7 @@ public class GridMap extends View {
                     && validMove(nextCoord, "right")) {
                 flag = true;
                 robotDirection = "right";
+                isValidMove = true;
             }
         }
 
@@ -998,6 +1003,8 @@ public class GridMap extends View {
             GridMap.robotBearing -= angle;  //revert angle change
         }
         this.invalidate();
+
+        return isValidMove;
     }
 
     /**
