@@ -1014,6 +1014,18 @@ public class GridMap extends View {
      * @param direction New direction robot is facing
      */
     public void moveRobotFromMessage(int x, int y, String direction) {
+        int[] newCoords = new int[]{x, y};
+
+        // Guard clauses for out of bounds/invalid move
+        if (!validMove(newCoords, direction)) {
+            Log.d(TAG, "New coords given by RPI is not a valid move");
+            return;
+        }
+        if (direction.equals("up") && !(newCoords[1] <= 20 && newCoords[1] > 1 && newCoords[0] >= 1 && newCoords[0] < 20)) return;
+        if (direction.equals("right") && !(newCoords[1] <= 20 && newCoords[1] > 1 && newCoords[0] > 1 && newCoords[0] <= 20)) return;
+        if (direction.equals("down") && !(newCoords[1] < 20 && newCoords[1] >= 1 && newCoords[0] > 1 && newCoords[0] <= 20)) return;
+        if (direction.equals("left") && !(newCoords[1] < 20 && newCoords[1] >= 1 && newCoords[0] >= 1 && newCoords[0] < 20)) return;
+
         switch (direction) {
             case "up":
                 GridMap.robotBearing = 0;
@@ -1028,7 +1040,7 @@ public class GridMap extends View {
                 GridMap.robotBearing = 270;
                 break;
         }
-        this.extrapolateRobot(new int[]{x, y}, direction);
+        this.extrapolateRobot(newCoords, direction);
         this.invalidate();
     }
 

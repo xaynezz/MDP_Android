@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">MDP_Android</string>
+    <string name="app_name_checklist">MDP_Checklist</string>
     <string name="group_name">MDP Group 21</string>
     <string name="bt_page_main">Main</string>
     <string name="bt_page_bluetooth">Bluetooth</string>
