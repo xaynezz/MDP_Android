@@ -304,15 +304,19 @@ public class GridMap extends View {
     private void drawRobot(Canvas canvas, int[] curCoord) {
         float xCoord, yCoord;
         BitmapFactory.Options op = new BitmapFactory.Options();
-        Bitmap bm, mapscalable;
+        Bitmap bm, mapScalable;
         int robotX = curCoord[0];
         int robotY = curCoord[1];
 
-        if (! (robotX == -1 && robotY == -1)) {
+        if (!(robotX == -1 && robotY == -1)) {
             op.inMutable = true;
             switch (this.getRobotDirection()) {
                 case "up":
-                    if (robotY < 2 || robotY > 20 || robotX < 1 || robotX > 19) {
+                case "down":
+                case "left":
+                case "right":
+                    // Ensure the robot's center coordinate is valid
+                    if (robotY < 2 || robotY > 19 || robotX < 2 || robotX > 19) {
                         Toast.makeText(
                                 this.getContext(),
                                 "Error with drawing robot (out of bound)",
@@ -320,62 +324,34 @@ public class GridMap extends View {
                         ).show();
                         this.setCanDrawRobot(false);
                     } else {
+                        // Adjust xCoord and yCoord to the center of the 3x3 grid
                         xCoord = cells[robotX][20 - robotY].startX;
                         yCoord = cells[robotX][20 - robotY].startY;
-                        bm = BitmapFactory.decodeResource(getResources(),R.drawable.car_up, op);
-                        mapscalable = Bitmap.createScaledBitmap(bm, 51,51, true);
-                        canvas.drawBitmap(mapscalable, xCoord, yCoord, null);
-                    }
-                    break;
 
-                case "down":
-                    if (robotY < 1 ||robotY > 19 || robotX < 2 || robotX > 20) {
-                        Toast.makeText(
-                                this.getContext(),
-                                "Error with drawing robot (out of bound)",
-                                Toast.LENGTH_SHORT
-                        ).show();
-                        this.setCanDrawRobot(false);
-                    } else {
-                        xCoord = cells[robotX - 1][20 - (robotY + 1)].startX;
-                        yCoord = cells[robotX - 1][20 - (robotY + 1)].startY;
-                        bm = BitmapFactory.decodeResource(getResources(),R.drawable.car_down, op);
-                        mapscalable = Bitmap.createScaledBitmap(bm, 51,51, true);
-                        canvas.drawBitmap(mapscalable, xCoord, yCoord, null);
-
-                    }
-                    break;
-                case "right":
-                    if (robotY < 2 || robotY > 20 || robotX < 2 || robotX > 20) {
-                        Toast.makeText(
-                                this.getContext(),
-                                "Error with drawing robot (out of bound)",
-                                Toast.LENGTH_SHORT
-                        ).show();
-                        this.setCanDrawRobot(false);
-                    } else {
-                        xCoord = cells[robotX - 1][20 - robotY].startX;
-                        yCoord = cells[robotX - 1][20 - robotY].startY;
-                        bm = BitmapFactory.decodeResource(getResources(),R.drawable.car_right, op);
-                        mapscalable = Bitmap.createScaledBitmap(bm, 51,51, true);
-                        canvas.drawBitmap(mapscalable, xCoord, yCoord, null);
-                    }
-                    break;
-
-                case "left":
-                    if (robotY < 1 || robotY > 19 ||robotX < 1 || robotX > 19) {
-                        Toast.makeText(
-                                this.getContext(),
-                                "Error with drawing robot (out of bound)",
-                                Toast.LENGTH_SHORT
-                        ).show();
-                        this.setCanDrawRobot(false);
-                    } else {
-                        xCoord = cells[robotX][20 - (robotY - 1)].startX;
-                        yCoord = cells[robotX][20 - (robotY + 1)].startY;
-                        bm = BitmapFactory.decodeResource(getResources(),R.drawable.car_left, op);
-                        mapscalable = Bitmap.createScaledBitmap(bm, 51,51, true);
-                        canvas.drawBitmap(mapscalable, xCoord, yCoord, null);
+                        // Select the appropriate bitmap based on the direction
+                        switch (this.getRobotDirection()) {
+                            case "up":
+                                bm = BitmapFactory.decodeResource(getResources(), R.drawable.car_up, op);
+                                break;
+                            case "down":
+                                bm = BitmapFactory.decodeResource(getResources(), R.drawable.car_down, op);
+                                break;
+                            case "left":
+                                bm = BitmapFactory.decodeResource(getResources(), R.drawable.car_left, op);
+                                break;
+                            case "right":
+                                bm = BitmapFactory.decodeResource(getResources(), R.drawable.car_right, op);
+                                break;
+                            default:
+                                Toast.makeText(
+                                        this.getContext(),
+                                        "Error with drawing robot (unknown direction)",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                                return;
+                        }
+                        mapScalable = Bitmap.createScaledBitmap(bm, 40, 40, true);
+                        canvas.drawBitmap(mapScalable, xCoord, yCoord, null);
                     }
                     break;
 
@@ -660,46 +636,18 @@ public class GridMap extends View {
         if (direction.equals("None")) {
             direction = "up";
         }
-        switch (direction) {
-            case "up":
-                if (col > 0 && col < 20 && row > 1 && row <= 20) {
-                    this.startCoord[0] = col;
-                    this.startCoord[1] = row;
-                } else {
-                    return;
-                }
-                break;
 
-            case "left":
-                if (col > 0 && col < 20 && row >= 1 && row < 20) {
-                    this.startCoord[0] = col;
-                    this.startCoord[1] = row;
-                } else {
-                    return;
-                }
-                break;
-
-            case "right":
-                if (col > 1 && col <= 20 && row > 1 && row <= 20) {
-                    this.startCoord[0] = col;
-                    this.startCoord[1] = row;
-                } else {
-                    return;
-                }
-                break;
-
-            case "down":
-                if (col > 1 && col <= 20 && row > 0 && row < 20) {
-                    this.startCoord[0] = col;
-                    this.startCoord[1] = row;
-                } else {
-                    return;
-                }
-                break;
+        // Boundary checks for the 3x3 robot with the center reference point
+        if (col < 2 || col > 19 || row < 2 || row > 19) {
+            return;
         }
 
-        if (this.getStartCoordStatus())
+        this.startCoord[0] = col;
+        this.startCoord[1] = row;
+
+        if (this.getStartCoordStatus()) {
             this.setCurCoord(col, row, direction);
+        }
     }
 
 
@@ -710,7 +658,8 @@ public class GridMap extends View {
      * @param direction The current direction of the robot
      */
     public void setCurCoord(int col, int row, String direction) {
-        if (col < 1 || col > 20 || row < 1 || row > 20) {
+        // Boundary checks for the 3x3 robot with the center reference point
+        if (col < 2 || col > 19 || row < 2 || row > 19) {
             return;
         }
 
@@ -718,32 +667,12 @@ public class GridMap extends View {
         this.curCoord[1] = row;
         this.setRobotDirection(direction);
         this.updateRobotAxis(col, row, direction);
-        this.updateCells("explored", col, row);
 
-        switch (direction) {
-            case "up":
-                this.updateCells("explored", col + 1, row - 1);
-                this.updateCells("explored", col + 1, row);
-                this.updateCells("explored", col, row - 1);
-                break;
-
-            case "down":
-                this.updateCells("explored", col - 1, row + 1);
-                this.updateCells("explored", col - 1, row);
-                this.updateCells("explored", col, row + 1);
-                break;
-
-            case "left":
-                this.updateCells("explored", col + 1, row + 1);
-                this.updateCells("explored", col + 1, row);
-                this.updateCells("explored", col, row + 1);
-                break;
-
-            case "right":
-                this.updateCells("explored", col - 1, row - 1);
-                this.updateCells("explored", col - 1, row);
-                this.updateCells("explored", col, row - 1);
-                break;
+        // Mark the 3x3 area around the center as explored
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                this.updateCells("explored", col + i, row + j);
+            }
         }
     }
 
@@ -959,9 +888,10 @@ public class GridMap extends View {
         GridMap.robotBearing += angle;
         double offset = GridMap.robotBearing % 360;
         offset = this.handleAngle(offset);
+
         // facing N
         if (offset > 45 && offset <= 135) {
-            if (nextCoord[1] <= 20 && nextCoord[1] > 1 && nextCoord[0] >= 1 && nextCoord[0] < 20
+            if (nextCoord[1] <= 19 && nextCoord[1] >= 2 && nextCoord[0] >= 2 && nextCoord[0] <= 19
                     && validMove(nextCoord, "up")) {
                 flag = true;
                 robotDirection = "up";
@@ -969,7 +899,7 @@ public class GridMap extends View {
         }
         // facing W
         else if (offset > 135 && offset <= 225) {
-            if (nextCoord[1] < 20 && nextCoord[1] >= 1 && nextCoord[0] >= 1 && nextCoord[0] < 20
+            if (nextCoord[1] <= 19 && nextCoord[1] >= 2 && nextCoord[0] >= 2 && nextCoord[0] <= 19
                     && validMove(nextCoord, "left")) {
                 flag = true;
                 robotDirection = "left";
@@ -977,7 +907,7 @@ public class GridMap extends View {
         }
         // facing S
         else if (offset > 225 && offset < 315) {
-            if (nextCoord[1] < 20 && nextCoord[1] >= 1 && nextCoord[0] > 1 && nextCoord[0] <= 20
+            if (nextCoord[1] <= 19 && nextCoord[1] >= 2 && nextCoord[0] >= 2 && nextCoord[0] <= 19
                     && validMove(nextCoord, "down")) {
                 flag = true;
                 robotDirection = "down";
@@ -985,7 +915,7 @@ public class GridMap extends View {
         }
         // facing E
         else {
-            if (nextCoord[1] <= 20 && nextCoord[1] > 1 && nextCoord[0] > 1 && nextCoord[0] <= 20
+            if (nextCoord[1] <= 19 && nextCoord[1] >= 2 && nextCoord[0] >= 2 && nextCoord[0] <= 19
                     && validMove(nextCoord, "right")) {
                 flag = true;
                 robotDirection = "right";
@@ -1039,128 +969,62 @@ public class GridMap extends View {
 
     /**
      * Plots the robot in-between path on the UI level.
-     * Example, if current coordinates is (1,2) and received coordinate is (1,10), colour all 2x2 cells
+     * Example, if current coordinates is (1,2) and received coordinate is (1,10), colour all 3x3 cells
      * from (1,3) to (1,10) as explored.
      * Note that the UI robot will be slower than the actual robot on the arena.
      * @param nextCoord The next coordinate the robot will be in.
      */
     public void extrapolateRobot(int[] nextCoord, String robotDirection) {
         int[] curCoord = this.getCurCoord();
-        Logd(robotDirection + "is the robot direction");
+        Logd(robotDirection + " is the robot direction");
+
         // same x-coord
         if (curCoord[0] == nextCoord[0]) {
-            switch (robotDirection) {
-                case "up":
-                    if (nextCoord[1] > curCoord[1]) {
-                        for (int i = curCoord[1]; i <= nextCoord[1]; i ++) {
-                            this.updateCells("explored", curCoord[0], i);
-                            this.updateCells("explored", curCoord[0] + 1, i);
-                        }
-                    } else {
-                        for (int i = nextCoord[1]; i <= curCoord[1]; i ++) {
-                            this.updateCells("explored", curCoord[0], i);
-                            this.updateCells("explored", curCoord[0] + 1, i);
-                        }
-                    }
-                    break;
+            // Determine the start and end row based on movement direction
+            int startRow = Math.min(curCoord[1], nextCoord[1]) - 1;
+            int endRow = Math.max(curCoord[1], nextCoord[1]) + 1;
 
-                case "down":
-                    if (nextCoord[1] > curCoord[1]) {
-                        for (int i = curCoord[1]; i <= nextCoord[1]; i ++) {
-                            this.updateCells("explored", curCoord[0], i);
-                            this.updateCells("explored", curCoord[0] - 1, i);
-                        }
-                    } else {
-                        for (int i = nextCoord[1]; i <= curCoord[1]; i ++) {
-                            this.updateCells("explored", curCoord[0], i);
-                            this.updateCells("explored", curCoord[0] - 1, i);
-
-                        }
-                    }
-                    break;
+            for (int i = startRow; i <= endRow; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    this.updateCells("explored", curCoord[0] + j, i);
+                }
             }
         }
+
         // same y-coord
         if (curCoord[1] == nextCoord[1]) {
-            switch (robotDirection) {
-                case "left":
-                    if (nextCoord[0] > curCoord[0]) {
-                        for (int i = curCoord[0]; i <= nextCoord[0]; i ++) {
-                            this.updateCells("explored", i, curCoord[1]);
-                            this.updateCells("explored", i, curCoord[1] + 1);
-                        }
-                    } else {
-                        for (int i = nextCoord[0]; i <= curCoord[0]; i ++) {
-                            this.updateCells("explored", i, curCoord[1]);
-                            this.updateCells("explored", i, curCoord[1] + 1);
-                        }
-                    }
-                    break;
+            // Determine the start and end column based on movement direction
+            int startCol = Math.min(curCoord[0], nextCoord[0]) - 1;
+            int endCol = Math.max(curCoord[0], nextCoord[0]) + 1;
 
-                case "right":
-                    if (nextCoord[0] > curCoord[0]) {
-                        for (int i = curCoord[0]; i <= nextCoord[0]; i ++) {
-                            this.updateCells("explored", i, curCoord[1]);
-                            this.updateCells("explored", i, curCoord[1] - 1);
-                        }
-                    } else {
-                        for (int i = nextCoord[0]; i <= curCoord[0]; i ++) {
-                            this.updateCells("explored", i, curCoord[1]);
-                            this.updateCells("explored", i, curCoord[1] - 1);
-                        }
-                    }
-                    break;
+            for (int i = startCol; i <= endCol; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    this.updateCells("explored", i, curCoord[1] + j);
+                }
             }
         }
+
         this.setCurCoord(nextCoord[0], nextCoord[1], robotDirection);
     }
 
     /**
      * Check if the robot's move is a valid move.
-     * This function is called after robot performs the move, so checking is done by examining if the robot 2x2 is currently sitting on the obstacle
+     * This function is called after robot performs the move, so checking is done by examining if the robot 3x3 is currently sitting on the obstacle
      * @param robotCoord The coordinate of the robot (note that robot moved first before checking, so this position may be invalid depending on the return value of this function)
      * @param direction The direction of the robot (note that the robot has made a move, so this direction is if the move is valid, what the robot's direction will be)
      * @return {@code true} if no obstacle hit by robot, {@code false} otherwise
      */
     public boolean validMove(int[] robotCoord, String direction) {
         ArrayList<int[]> obstacleCoords = this.getObstacleCoord();
-        // examine for each obstacle on the map
+
+        // Check for obstacles in the 3x3 area around the robot's center
         for (int[] currentObstacle : obstacleCoords) {
             int obstacleX = currentObstacle[0];
             int obstacleY = currentObstacle[1];
 
-            /*
-            manual way to check if robot is sitting on the obstacle
-            since robot coordinate is based on the cell occupied by its top left wheel,
-            depending on the direction, the cells to be examined are different
-             */
-            switch (direction) {
-                case "up":
-                    if (robotCoord[1] - 1 <= obstacleY && obstacleY <= robotCoord[1]
-                            && robotCoord[0] <= obstacleX && obstacleX <= robotCoord[0] + 1) {
-                        return false;
-                    }
-                    break;
-                case "down":
-                    if (robotCoord[1] <= obstacleY && obstacleY <= robotCoord[1] + 1
-                            && robotCoord[0] - 1 <= obstacleX && obstacleX <= robotCoord[0]) {
-                        return false;
-                    }
-                    break;
-                case "left":
-                    if (robotCoord[0] <= obstacleX && obstacleX <= robotCoord[0] + 1
-                            && robotCoord[1] <= obstacleY && obstacleY <= robotCoord[1] + 1) {
-                        return false;
-                    }
-                    break;
-                case "right":
-                    if (robotCoord[0] - 1 <= obstacleX && obstacleX <= robotCoord[0]
-                            && robotCoord[1] - 1 <= obstacleY && obstacleY <= robotCoord[1]) {
-                        return false;
-                    }
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid direction: " + direction);
+            if (robotCoord[0] - 1 <= obstacleX && obstacleX <= robotCoord[0] + 1
+                    && robotCoord[1] - 1 <= obstacleY && obstacleY <= robotCoord[1] + 1) {
+                return false;
             }
         }
         return true;
