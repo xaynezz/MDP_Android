@@ -83,21 +83,37 @@ public class BluetoothPage extends AppCompatActivity {
     boolean retryConnection = false;
     Handler reconnectionHandler = new Handler();
 
+    private int reconnectionAttempts = 0;
+    private final int maxReconnectionAttempts = 10; // Maximum number of reconnection attempts
+
     Runnable reconnectionRunnable = new Runnable() {
         @Override
         public void run() {
             try {
-                if (!BluetoothConnectionManager.BluetoothConnectionStatus) {
-                    showLog("Reconnecting...");
+                if (!BluetoothConnectionManager.BluetoothConnectionStatus && reconnectionAttempts < maxReconnectionAttempts) {
+                    showLog("Reconnecting... Attempt " + (reconnectionAttempts + 1));
                     startBTConnection(mBTDevice, MY_UUID);
-                    updateStatus("Reconnection Success");
+                    updateStatus("Reconnection Attempt " + (reconnectionAttempts + 1));
+                    reconnectionAttempts++;
+                    reconnectionHandler.postDelayed(reconnectionRunnable, 5000); // Retry every 5 seconds
+                } else {
+                    if (reconnectionAttempts >= maxReconnectionAttempts) {
+                        showLog("Max reconnection attempts reached. Stopping reconnection.");
+                        updateStatus("Failed to reconnect after " + maxReconnectionAttempts + " attempts.");
+                        reconnectionHandler.removeCallbacks(reconnectionRunnable);
+                        retryConnection = false;
+                    } else {
+                        // Successful connection
+                        reconnectionHandler.removeCallbacks(reconnectionRunnable);
+                        retryConnection = false;
+                        reconnectionAttempts = 0; // Reset for future disconnections
+                    }
                 }
-                reconnectionHandler.removeCallbacks(reconnectionRunnable);
-                retryConnection = false;
             } catch (Exception e) {
                 showLog("Reconnection failed");
                 e.printStackTrace();
-                updateStatus("Failed to reconnect, trying in 5 seconds");
+                updateStatus("Failed to reconnect, trying again...");
+                reconnectionHandler.postDelayed(reconnectionRunnable, 5000); // Retry again after 5 seconds
             }
         }
     };
