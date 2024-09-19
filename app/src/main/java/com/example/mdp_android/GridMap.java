@@ -188,6 +188,10 @@ public class GridMap extends View {
         }
     }
 
+    public int[] getStartCoord(){
+        return this.startCoord;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);

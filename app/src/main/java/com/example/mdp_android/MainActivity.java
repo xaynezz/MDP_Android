@@ -458,6 +458,9 @@ public class MainActivity extends AppCompatActivity {
 
         valueObject.put("obstacles", obstacleArray);
         valueObject.put("mode", "0");
+        int[] startCoord = gridMap.getStartCoord();
+        valueObject.put("robot_X", startCoord[0]-1);
+        valueObject.put("robot_Y", startCoord[1]-1);
 
         outerObject.put("cat", "obstacles");
         outerObject.put("value", valueObject);
