@@ -12,7 +12,8 @@
     <string name="bt_page_connect_button">CONNECT</string>
     <string name="bt_connected">Connected</string>
     <string name="bt_disconnected">Disconnected</string>
-    <string name="chat_send_arrow_desc">Sendmessage</string>
+    <string name="chat_send_arrow_desc">Send message</string>
+    <string name="chat_reset_button_desc">Clear chat log</string>
     <string name="chat_enter_message_hint">Enter message</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>

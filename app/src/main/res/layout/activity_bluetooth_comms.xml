@@ -34,9 +34,18 @@
             android:background="@color/gray"
             android:orientation="horizontal">
 
-            <!-- Message entry -->
+            <!-- Clear chat log button -->
+            <ImageButton
+                android:id="@+id/chat_reset_button"
+                android:layout_width="75dp"
+                android:layout_marginLeft="8dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="#00FFFFFF"
+                android:contentDescription="@string/chat_reset_button_desc"
+                android:src="@drawable/reset_chat"
+                app:tint="@color/white" />
 
-            <!-- Message send button -->
+            <!-- Message entry -->
             <EditText
                 android:id="@+id/chat_message_entry"
                 android:layout_width="0dp"
@@ -51,6 +60,7 @@
                 android:textColorHint="@color/black"
                 android:textSize="14sp" />
 
+            <!-- Message send button -->
             <ImageButton
                 android:id="@+id/chat_send_button"
                 android:layout_width="75dp"

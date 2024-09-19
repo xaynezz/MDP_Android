@@ -86,6 +86,7 @@ public class BluetoothComms extends Fragment {
 
         // Initialize UI elements
         ImageButton sendButton = root.findViewById(R.id.chat_send_button);
+        ImageButton resetButton = root.findViewById(R.id.chat_reset_button);
         this.receivedMessagesTextView = root.findViewById(R.id.chat_message_display);
         this.receivedMessagesTextView.setMovementMethod(new ScrollingMovementMethod());
         this.messageInputEditText = root.findViewById(R.id.chat_message_entry);
@@ -115,6 +116,13 @@ public class BluetoothComms extends Fragment {
                 BluetoothConnectionManager.write(bytes);
             }
             logDebugMessage("Exiting send button");
+        });
+
+        // Set a click listener on the reset button to clear the chat display
+        resetButton.setOnClickListener(view -> {
+            logDebugMessage("Clicked reset button");
+            this.receivedMessagesTextView.setText("");
+            logDebugMessage("Exiting reset button");
         });
 
         return root;
