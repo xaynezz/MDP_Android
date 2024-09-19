@@ -325,8 +325,8 @@ public class GridMap extends View {
                         this.setCanDrawRobot(false);
                     } else {
                         // Adjust xCoord and yCoord to the center of the 3x3 grid
-                        xCoord = cells[robotX][20 - robotY].startX;
-                        yCoord = cells[robotX][20 - robotY].startY;
+                        xCoord = cells[robotX-1][20 - robotY].startX;
+                        yCoord = cells[robotX][19 - robotY].startY;
 
                         // Select the appropriate bitmap based on the direction
                         switch (this.getRobotDirection()) {
@@ -350,7 +350,7 @@ public class GridMap extends View {
                                 ).show();
                                 return;
                         }
-                        mapScalable = Bitmap.createScaledBitmap(bm, 40, 40, true);
+                        mapScalable = Bitmap.createScaledBitmap(bm, 78, 78, true);
                         canvas.drawBitmap(mapScalable, xCoord, yCoord, null);
                     }
                     break;
