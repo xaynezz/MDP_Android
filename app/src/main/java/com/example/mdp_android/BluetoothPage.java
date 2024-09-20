@@ -74,10 +74,10 @@ public class BluetoothPage extends AppCompatActivity {
     SharedPreferences.Editor editor;
 
     BluetoothConnectionManager mBluetoothConnection;
-    // For AMDtool
-//    public static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    // For actual robot
-    private static final UUID MY_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+    // Alternative 1: Previously only for AMDtool, now for both AMDtool and RPI
+    public static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    // Alternative 2: Previously only for RPI, now not used
+//    private static final UUID MY_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
     public static BluetoothDevice mBTDevice;
 
     boolean retryConnection = false;
