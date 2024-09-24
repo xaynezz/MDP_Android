@@ -461,6 +461,21 @@ public class MainActivity extends AppCompatActivity {
         int[] startCoord = gridMap.getStartCoord();
         valueObject.put("robot_X", startCoord[0]-1);
         valueObject.put("robot_Y", startCoord[1]-1);
+        String robotDirection = gridMap.getRobotDirection();
+        switch (robotDirection) {
+            case "up":
+                valueObject.put("robot_dir", 0);
+                break;
+            case "left":
+                valueObject.put("robot_dir", 6);
+                break;
+            case "down":
+                valueObject.put("robot_dir", 4);
+                break;
+            case "right":
+                valueObject.put("robot_dir", 2);
+                break;
+        }
 
         outerObject.put("cat", "obstacles");
         outerObject.put("value", valueObject);
