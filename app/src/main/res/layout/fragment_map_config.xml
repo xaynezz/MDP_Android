@@ -114,6 +114,62 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/add_obs_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:ems="10"
+                        android:inputType="number"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/add_obs_x"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:ems="10"
+                        android:inputType="number"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/add_obs_y"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:ems="10"
+                        android:inputType="number"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <Spinner
+                    android:id="@+id/add_obs_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/add_obs_coord_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/theme_blue"
+                    android:text="Add Obstacle" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <TextView
@@ -154,7 +210,9 @@
                         android:layout_weight="1"
                         android:foregroundTint="@color/theme_light_blue"
                         android:trackTint="@color/theme_gray" />
+
                 </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

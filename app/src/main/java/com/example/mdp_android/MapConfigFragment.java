@@ -6,9 +6,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -27,7 +30,7 @@ public class MapConfigFragment extends Fragment {
     ImageButton directionChangeImageBtn;
     ToggleButton setStartPointToggleBtn, obstacleImageBtn;
     GridMap gridMap;
-
+    EditText xCoordBox, yCoordBox, idBox;
     Switch dragSwitch;
     Switch changeObstacleSwitch;
 
@@ -35,6 +38,8 @@ public class MapConfigFragment extends Fragment {
     static String imageBearing="North";
     static boolean dragStatus;
     static boolean changeObstacleStatus;
+    Spinner directionSpinner;
+    Button addObstacleButton;
 
     private MainActivity mainActivity;
 
@@ -67,7 +72,17 @@ public class MapConfigFragment extends Fragment {
         loadMapObstacle = root.findViewById(R.id.load_map_button);
         dragSwitch = root.findViewById(R.id.drag_switch);
         changeObstacleSwitch = root.findViewById(R.id.change_obstacle_switch);
+        directionSpinner = root.findViewById(R.id.add_obs_spinner);
+        addObstacleButton = root.findViewById(R.id.add_obs_coord_button);
+        xCoordBox = root.findViewById(R.id.add_obs_x);
+        yCoordBox = root.findViewById(R.id.add_obs_y);
+        idBox = root.findViewById(R.id.add_obs_id);
 
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this.getContext(), R.array.image_bearing_array,
+                android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        directionSpinner.setAdapter(adapter);
 
         resetMapBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,6 +90,25 @@ public class MapConfigFragment extends Fragment {
                 showLog("Clicked resetMapBtn");
                 showToast("Reseting map...");
                 gridMap.resetMap(true);
+            }
+        });
+
+        addObstacleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showLog("Clicked add_obs_coord_button");
+                showToast("Added obstacle at X: Y: Direction:");
+                String newID = "OB" + idBox.getText().toString();
+                int tCol = Integer.parseInt(xCoordBox.getText().toString());
+                int tRow = Integer.parseInt(yCoordBox.getText().toString());
+                String newBearing = directionSpinner.getSelectedItem().toString();
+
+                gridMap.addObstacleCoord(tCol, tRow, newID);
+                gridMap.setObstacleID(newID, tCol, tRow);
+                gridMap.setImageBearing(newBearing, tCol, tRow);
+
+
+                gridMap.invalidate();
             }
         });
 

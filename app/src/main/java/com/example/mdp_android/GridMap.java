@@ -502,6 +502,7 @@ public class GridMap extends View {
                     final Spinner mIDSpinner = mView.findViewById(R.id.image_id_spinner);
                     final Spinner mBearingSpinner = mView.findViewById(R.id.bearing_spinner);
 
+
                     ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                             this.getContext(), R.array.image_id_array,
                             android.R.layout.simple_spinner_item);
