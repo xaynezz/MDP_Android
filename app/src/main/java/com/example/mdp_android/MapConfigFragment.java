@@ -97,7 +97,6 @@ public class MapConfigFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 showLog("Clicked add_obs_coord_button");
-                showToast("Added obstacle at X: Y: Direction:");
                 String newID = "OB" + idBox.getText().toString();
                 int tCol = Integer.parseInt(xCoordBox.getText().toString());
                 int tRow = Integer.parseInt(yCoordBox.getText().toString());
@@ -107,6 +106,10 @@ public class MapConfigFragment extends Fragment {
                 gridMap.setObstacleID(newID, tCol, tRow);
                 gridMap.setImageBearing(newBearing, tCol, tRow);
 
+                showToast(String.format("ID: %s X: %d Y: %d Dir: %s", newID, tCol, tRow, newBearing));
+                xCoordBox.setText("");
+                yCoordBox.setText("");
+                idBox.setText("");
 
                 gridMap.invalidate();
             }
