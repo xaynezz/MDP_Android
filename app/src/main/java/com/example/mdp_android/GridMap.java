@@ -265,14 +265,14 @@ public class GridMap extends View {
         for (int x = 1; x <= COL; x++) {
             if (x >= 10)
                 canvas.drawText(
-                        Integer.toString(x),
+                        Integer.toString(x-1),
                         cells[x][20].startX + (cellSize / 5),
                         cells[x][20].startY + (cellSize / 1.5f),
                         textPaint
                 );
             else
                 canvas.drawText(
-                        Integer.toString(x),
+                        Integer.toString(x-1),
                         cells[x][20].startX + (cellSize / 2.5f),
                         cells[x][20].startY + (cellSize / 1.5f),
                         textPaint
@@ -282,14 +282,14 @@ public class GridMap extends View {
         for (int y = 0; y < ROW; y++) {
             if ((20 - y) >= 10)
                 canvas.drawText(
-                        Integer.toString(ROW - y),
+                        Integer.toString(ROW - y - 1),
                         cells[0][y].startX + (cellSize / 5),
                         cells[0][y].startY + (cellSize / 1.5f),
                         textPaint
                 );
             else
                 canvas.drawText(
-                        Integer.toString(ROW - y),
+                        Integer.toString(ROW - y - 1),
                         cells[0][y].startX + (cellSize / 2.5f),
                         cells[0][y].startY + (cellSize / 1.5f),
                         textPaint

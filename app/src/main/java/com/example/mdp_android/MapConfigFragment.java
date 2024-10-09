@@ -98,8 +98,8 @@ public class MapConfigFragment extends Fragment {
             public void onClick(View view) {
                 showLog("Clicked add_obs_coord_button");
                 String newID = "OB" + idBox.getText().toString();
-                int tCol = Integer.parseInt(xCoordBox.getText().toString());
-                int tRow = Integer.parseInt(yCoordBox.getText().toString());
+                int tCol = Integer.parseInt(xCoordBox.getText().toString()) + 1;
+                int tRow = Integer.parseInt(yCoordBox.getText().toString()) + 1;
                 String newBearing = directionSpinner.getSelectedItem().toString();
 
                 gridMap.addObstacleCoord(tCol, tRow, newID);
